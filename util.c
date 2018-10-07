@@ -1,6 +1,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <stdarg.h>
 #include "util.h"
 
 int debug = 0;
@@ -63,4 +65,21 @@ fatalsxx(const char* message,
 	  x1,
 	  x2);
   exit(1);
+}
+
+void
+debugf(const char* format, ...) {
+  
+  assert(format != 0);
+ 
+  if (debug) {
+    
+    va_list args;
+    printf("debug: ");
+    va_start (args, format);
+    vprintf(format, args);
+    va_end (args);
+    printf("\n");
+    
+  }
 }

@@ -18,5 +18,7 @@ extern void fatalsxx(const char* message,
 		     const char* string,
 		     unsigned int x1,
 		     unsigned int x2);
+extern void debugf(const char* format,
+		   ...);
 
 #endif /* UTIL_H */

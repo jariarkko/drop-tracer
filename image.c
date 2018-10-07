@@ -24,7 +24,7 @@ image_modelz2image(struct phymodel* model,
    * Allocations
    */
   
-  ExceptionInfo exception;
+  ExceptionInfo* exception;
   Image* image = 0;
   ImageInfo* image_info;
   unsigned int nPixels = model->xSize * model->ySize * model->zSize;
@@ -34,6 +34,13 @@ image_modelz2image(struct phymodel* model,
     fatalsu("cannot allocate pixels for file",filename,nPixels);
   }
 
+  /*
+   * Initialize ImageMagick
+   */
+
+  MagickCoreGenesis("drop-tracer",MagickTrue);
+  exception=AcquireExceptionInfo();
+  
   /*
    * Set the properties of the image as desired,
    * i.e., the right filename
@@ -63,21 +70,33 @@ image_modelz2image(struct phymodel* model,
 			  "RGB",
 			  CharPixel,
 			  pixels,
-			  &exception);
-
+			  exception);
+  
   /*
    * Write the image to file
    */
-  
-  if (WriteImage(image_info,
-		 image) == MagickFalse) {
+
+  debugf("writing image to file %s", image_info->filename);
+  strcpy(image->filename,image_info->filename);
+  MagickBooleanType wres = WriteImage(image_info,image);
+  switch (wres) {
+  case MagickTrue:
+    debugf("write returned true");
+    break;
+  case MagickFalse:
+    debugf("write returned false");
     fatals("cannot write image file",filename);
+    break;
+  default:
+    fatal("unexpected boolean value");
+    break;
   }
 
   /*
    * Cleanup
    */
   
+  debugf("image write done");
   DestroyImage(image);
 }
 

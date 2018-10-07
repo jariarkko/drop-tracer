@@ -32,6 +32,7 @@ static struct option long_options[] = {
   {"debug", no_argument,       &debug, 1},
   {"no-debug", no_argument,    &debug, 0},
   {"create-rock", no_argument, (int*)&operation, drop_tracer_operation_createrock},
+  {"simple-crack", no_argument,(int*)&creationStyle, rockinitialization_simplecrack},
   {"simulate", no_argument,    (int*)&operation, drop_tracer_operation_simulate},
   {"image", no_argument,       (int*)&operation, drop_tracer_operation_image},
   {"model", no_argument,       (int*)&operation, drop_tracer_operation_model},
