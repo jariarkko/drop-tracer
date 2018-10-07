@@ -85,10 +85,10 @@ phymodel_initialize_rock(enum rockinitialization style,
   if (model == 0) return(0);
   switch (style) {
   case rockinitialization_simplecrack:
-    phymodel_initialize_rock_simplecrack(model,freeSpaceAboveRock,rockThickness,styleParam);
+    phymodel_initialize_rock_simplecrack(model,freeSpaceAboveRock,rockThickness,uniform,styleParam);
     break;
   case rockinitialization_fractalcrack:
-    phymodel_initialize_rock_fractalcrack(model,freeSpaceAboveRock,rockThickness,styleParam);
+    phymodel_initialize_rock_fractalcrack(model,freeSpaceAboveRock,rockThickness,uniform,styleParam);
     break;
   default:
     fatal("unrecognised rock creation style");

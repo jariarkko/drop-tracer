@@ -26,6 +26,7 @@ static unsigned int creationStyleParam = 1;
 static unsigned int imageZ = 0;
 static unsigned int imageX = 0;
 static unsigned int imageY = 0;
+static unsigned int rounds = 1000;
 
 static struct option long_options[] = {
   
@@ -56,6 +57,7 @@ static struct option long_options[] = {
   {"imagez",                     required_argument, 0, 'Z'},
   {"imagex",                     required_argument, 0, 'X'},
   {"imagey",                     required_argument, 0, 'Y'},
+  {"rounds",                     required_argument, 0, 'R'},
   {"input",                      required_argument, 0, 'i'},
   {"output",                     required_argument, 0, 'o'},
   
@@ -83,7 +85,7 @@ main(int argc,
       /* getopt_long stores the option index here. */
       int option_index = 0;
 
-      c = getopt_long (argc, argv, "dncsgmo:u:x:y:z:r:i:Z:X:Y:",
+      c = getopt_long (argc, argv, "dncsgmo:u:x:y:z:r:i:Z:X:Y:R:",
                        long_options, &option_index);
 
       /* Detect the end of the options. */
@@ -157,6 +159,14 @@ main(int argc,
 	
       case 'o':
 	outputfile = optarg;
+	break;
+	
+      case 'R':
+	/* TODO: Handle M/B ... */
+	rounds = atoi(optarg);
+	if (rounds <= 0) {
+	  fatals("rounds should be a positive number",optarg);
+	}
 	break;
 	
       case '?':

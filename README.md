@@ -55,20 +55,38 @@ And options is one of:
     --non-uniform         Sets the main crack to be widest in the middle of the model
     --creation-parameter  Sets the width of the crack in its widest position
 
+    Options used with --simulate:
+
+    --rounds              Sets the number of rounds. Use suffix "M" as shorthand for
+                          million and "B" for billion. For instance, 250M is 250
+                          million simulation rounds.
+                          
     Options used with --image:
 
     --imagez              Sets the z value when exporting a model to an image file; the
                           image will be from that z height in the model, while x and y
-			  form the image
+                          form the image
     --imagey              Sets the y value when exporting a model to an image file; the
                           image will be from that y position in the model, while z and x
-			  form the image
+                          form the image
     --imagex              Sets the x value when exporting a model to an image file; the
                           image will be from that x position in the model, while z and y
-			  form the image
+                          form the image
     
-Examples
+EXAMPLES
+--------
 
+This command creates a simple 10 units wide crack, putting the resulting base model in the file base.mod:
+
+    drop-tracer --create-rock --simple-crack --creation-parameter 10 --output base.mod
+
+This command converts the above base model into an image, putting the result in base.jpg:
+
+    drop-tracer --image --output base.jpg
+
+And this command runs a simulation for a million rounds:
+
+    drop-tracer --simulate --rounds 1M
 CONTRIBUTORS
 ------------
 
