@@ -9,7 +9,8 @@ The software supports:
 - The simulation of water seeping through the cracks of the rock, depositing calcite and growing the cave forms
 - The conversion of the base rock models and simulation results to 2D and 3D graphic that can be viewed or printed
 
-* INSTALLATION
+INSTALLATION
+------------
 
 Use these commands:
 
@@ -18,7 +19,8 @@ Use these commands:
   make clean all
   sudo make install
 
-* USAGE
+USAGE
+-----
 
 The software is a command-line tool that runs under Unix systems. The command syntax is:
 
@@ -60,3 +62,7 @@ And options is one of:
     
 Examples
 
+CONTRIBUTORS
+------------
+
+The software has been written by Jari Arkko.
