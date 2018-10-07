@@ -21,7 +21,14 @@ static void
 phymodel_initialize_rock_simplecrack(struct phymodel* model,
 				     unsigned int startZ,
 				     unsigned int zThickness,
+				     int uniform,
 				     unsigned int styleParam);
+static void
+phymodel_initialize_rock_fractalcrack(struct phymodel* model,
+				      unsigned int startZ,
+				      unsigned int zThickness,
+				      int uniform,
+				      unsigned int styleParam);
 
 struct phymodel*
 phymodel_create(unsigned int unit,
@@ -60,6 +67,7 @@ phymodel_create_initatom(unsigned int x,
 
 struct phymodel*
 phymodel_initialize_rock(enum rockinitialization style,
+			 int uniform,
 			 unsigned int styleParam,
 			 unsigned int unit,
 			 unsigned int xSize,
@@ -79,6 +87,9 @@ phymodel_initialize_rock(enum rockinitialization style,
   case rockinitialization_simplecrack:
     phymodel_initialize_rock_simplecrack(model,freeSpaceAboveRock,rockThickness,styleParam);
     break;
+  case rockinitialization_fractalcrack:
+    phymodel_initialize_rock_fractalcrack(model,freeSpaceAboveRock,rockThickness,styleParam);
+    break;
   default:
     fatal("unrecognised rock creation style");
   }
@@ -89,7 +100,36 @@ static void
 phymodel_initialize_rock_simplecrack(struct phymodel* model,
 				     unsigned int startZ,
 				     unsigned int zThickness,
+				     int uniform,
 				     unsigned int styleParam) {
+
+  unsigned int crackwidth = (styleParam < model->xSize) ? styleParam : 1;
+  unsigned int crackleftsidewidth = (model->xSize - crackwidth) / 2;
+  unsigned int x;
+  unsigned int y;
+  unsigned int z;
+  
+  for (z = startZ; z < startZ + zThickness; z++) {
+    assert(z < model->zSize);
+    for (y = 0; y < model->ySize; y++) {
+      for (x = 0; x < crackleftsidewidth; x++) {
+	assert(x < model->xSize);
+	phymodel_initialize_rock_material(model,x,y,z);
+      }
+      for (x = crackleftsidewidth + crackwidth; x < model->xSize; x++) {
+	phymodel_initialize_rock_material(model,x,y,z);
+      }
+    }
+  }
+  
+}
+
+static void
+phymodel_initialize_rock_fractalcrack(struct phymodel* model,
+				      unsigned int startZ,
+				      unsigned int zThickness,
+				      int uniform,
+				      unsigned int styleParam) {
 
   unsigned int crackwidth = (styleParam < model->xSize) ? styleParam : 1;
   unsigned int crackleftsidewidth = (model->xSize - crackwidth) / 2;

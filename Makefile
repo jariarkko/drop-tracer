@@ -24,6 +24,9 @@ drop-tracer:	$(LIBOBJECTS) \
 		$(CMDOBJECTS)
 	$(CC) -o drop-tracer $(CMDOBJECTS) $(LIBOBJECTS) $(LDFLAGS) -lm
 
+install:	drop-tracer
+	cp drop-tracer /usr/sbin/drop-tracer
+
 clean:
 	rm -f drop-tracer $(CMDOBJECTS) $(LIBOBJECTS)
 	rm -f *~

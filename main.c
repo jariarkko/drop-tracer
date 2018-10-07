@@ -21,6 +21,7 @@ static unsigned int xSize = 128;      /* 12.8 mm */
 static unsigned int ySize = 128;      /* 12.8 mm */
 static unsigned int zSize = 128;      /* 12.8 mm */
 static enum rockinitialization creationStyle = rockinitialization_simplecrack;
+static unsigned int creationUniform = 0;
 static unsigned int creationStyleParam = 1;
 static unsigned int imageZ = 0;
 static unsigned int imageX = 0;
@@ -28,29 +29,40 @@ static unsigned int imageY = 0;
 
 static struct option long_options[] = {
   
-  /* These options set a flag. */
-  {"debug", no_argument,       &debug, 1},
-  {"no-debug", no_argument,    &debug, 0},
-  {"create-rock", no_argument, (int*)&operation, drop_tracer_operation_createrock},
-  {"simple-crack", no_argument,(int*)&creationStyle, rockinitialization_simplecrack},
-  {"simulate", no_argument,    (int*)&operation, drop_tracer_operation_simulate},
-  {"image", no_argument,       (int*)&operation, drop_tracer_operation_image},
-  {"model", no_argument,       (int*)&operation, drop_tracer_operation_model},
+  /*
+   * These options set a fixed flag or mode, and do not need extra parsing or parameters.
+   */
   
-  /* These options don’t set a flag. */
+  {"debug", no_argument,         &debug, 1},
+  {"no-debug", no_argument,      &debug, 0},
+  {"create-rock", no_argument,   (int*)&operation, drop_tracer_operation_createrock},
+  {"simple-crack", no_argument,  (int*)&creationStyle, rockinitialization_simplecrack},
+  {"fractal-crack", no_argument, (int*)&creationStyle, rockinitialization_fractalcrack},
+  {"uniform", no_argument,       (int*)&creationUniform, 1},
+  {"non-uniform", no_argument,   (int*)&creationUniform, 0},
+  {"simulate", no_argument,      (int*)&operation, drop_tracer_operation_simulate},
+  {"image", no_argument,         (int*)&operation, drop_tracer_operation_image},
+  {"model", no_argument,         (int*)&operation, drop_tracer_operation_model},
   
-  {"unit",                  required_argument, 0, 'u'},
-  {"creation-parameter",    required_argument, 0, 'r'},
-  {"xsize",                 required_argument, 0, 'x'},
-  {"ysize",                 required_argument, 0, 'y'},
-  {"zsize",                 required_argument, 0, 'z'},
-  {"imagez",                required_argument, 0, 'Z'},
-  {"imagex",                required_argument, 0, 'X'},
-  {"imagey",                required_argument, 0, 'Y'},
-  {"input",                 required_argument, 0, 'i'},
-  {"output",                required_argument, 0, 'o'},
+  /*
+   * These options need an argument
+   */
   
-  /* End of options table */
+  {"unit",                       required_argument, 0, 'u'},
+  {"creation-parameter",         required_argument, 0, 'r'},
+  {"xsize",                      required_argument, 0, 'x'},
+  {"ysize",                      required_argument, 0, 'y'},
+  {"zsize",                      required_argument, 0, 'z'},
+  {"imagez",                     required_argument, 0, 'Z'},
+  {"imagex",                     required_argument, 0, 'X'},
+  {"imagey",                     required_argument, 0, 'Y'},
+  {"input",                      required_argument, 0, 'i'},
+  {"output",                     required_argument, 0, 'o'},
+  
+  /*
+   * End of the options table
+   */
+  
   {0, 0, 0, 0}
 };
 
@@ -176,6 +188,7 @@ main(int argc,
       fatal("output file should be specified for --create-rock");
     }
     model = phymodel_initialize_rock(creationStyle,
+				     creationUniform,
 				     creationStyleParam,
 				     unit,
 				     xSize,

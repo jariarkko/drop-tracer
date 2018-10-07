@@ -5,7 +5,8 @@
 #define PHYMODEL_MAGIC		0xCA5EF058
 
 enum rockinitialization {
-  rockinitialization_simplecrack
+  rockinitialization_simplecrack,
+  rockinitialization_fractalcrack
 };
 
 enum material {
@@ -53,6 +54,7 @@ phymodel_create(unsigned int unit,
 		unsigned int zSize);
 extern struct phymodel*
 phymodel_initialize_rock(enum rockinitialization style,
+			 int uniform,
 			 unsigned int styleParam,
 			 unsigned int unit,
 			 unsigned int xSize,
