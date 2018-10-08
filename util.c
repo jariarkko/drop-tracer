@@ -55,6 +55,17 @@ fatalxx(const char* message,
 }
 
 void
+fataluu(const char* message,
+	unsigned int x1,
+	unsigned int x2) {
+  fprintf(stderr,"drop-tracer: error: %s: %u: %u -- exit\n",
+	  message,
+	  x1,
+	  x2);
+  exit(1);
+}
+
+void
 fatalsxx(const char* message,
 	 const char* string,
 	 unsigned int x1,

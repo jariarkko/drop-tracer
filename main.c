@@ -1,7 +1,10 @@
 
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <string.h>
+#include <ctype.h>
 #include "util.h"
 #include "phymodel.h"
 #include "image.h"
@@ -22,7 +25,8 @@ static unsigned int ySize = 128;      /* 12.8 mm */
 static unsigned int zSize = 128;      /* 12.8 mm */
 static enum rockinitialization creationStyle = rockinitialization_simplecrack;
 static unsigned int creationUniform = 0;
-static unsigned int creationStyleParam = 1;
+static unsigned int creationStyleParam1 = 10;
+static unsigned int creationStyleParam2 = 10;
 static unsigned int imageZ = 0;
 static unsigned int imageX = 0;
 static unsigned int imageY = 0;
@@ -50,7 +54,8 @@ static struct option long_options[] = {
    */
   
   {"unit",                       required_argument, 0, 'u'},
-  {"creation-parameter",         required_argument, 0, 'r'},
+  {"creation-parameter1",        required_argument, 0, 'r'},
+  {"creation-parameter2",        required_argument, 0, 't'},
   {"xsize",                      required_argument, 0, 'x'},
   {"ysize",                      required_argument, 0, 'y'},
   {"zsize",                      required_argument, 0, 'z'},
@@ -73,9 +78,16 @@ main(int argc,
      char** argv) {
   
   struct phymodel* model = 0;
+  time_t t;
   int ival;
   int c;
 
+  /*
+   * Initialize system
+   */
+  
+  srand((unsigned) time(&t));
+  
   /*
    * Parse arguments
    */
@@ -105,9 +117,16 @@ main(int argc,
 	break;
 	
       case 'r':
-	creationStyleParam = atoi(optarg);
-	if (creationStyleParam <= 0) {
-	  fatals("creation style parameter must be a positive integer, got",optarg);
+	creationStyleParam1 = atoi(optarg);
+	if (creationStyleParam1 <= 0) {
+	  fatals("creation style parameter 1 must be a positive integer, got",optarg);
+	}
+	break;
+	
+      case 't':
+	creationStyleParam2 = atoi(optarg);
+	if (creationStyleParam2 <= 0) {
+	  fatals("creation style parameter 2 must be a positive integer, got",optarg);
 	}
 	break;
 	
@@ -162,8 +181,23 @@ main(int argc,
 	break;
 	
       case 'R':
-	/* TODO: Handle M/B ... */
 	rounds = atoi(optarg);
+	if (rounds > 0 && strlen(optarg) > 0 && isalpha(optarg[strlen(optarg)-1])) {
+	  switch (toupper(optarg[strlen(optarg)-1])) {
+	  case 'K':
+	    rounds *= 1000;
+	    break;
+	  case 'M':
+	    rounds *= 1000 * 1000;
+	    break;
+	  case 'B':
+	    rounds *= 1000 * 1000 * 1000;
+	    break;
+	  default:
+	    fatals("unrecognised unit in --rounds arguments, expected K, M or B, got", optarg);
+	    break;
+	  }
+	}
 	if (rounds <= 0) {
 	  fatals("rounds should be a positive number",optarg);
 	}
@@ -199,7 +233,8 @@ main(int argc,
     }
     model = phymodel_initialize_rock(creationStyle,
 				     creationUniform,
-				     creationStyleParam,
+				     creationStyleParam1,
+				     creationStyleParam2,
 				     unit,
 				     xSize,
 				     ySize,

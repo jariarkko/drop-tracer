@@ -53,7 +53,9 @@ And options is one of:
     --fractal-crack       Generates a fractal crack, i.e., a main crack with side cracks
     --uniform             Sets the main crack to be equally wide throughout the model
     --non-uniform         Sets the main crack to be widest in the middle of the model
-    --creation-parameter  Sets the width of the crack in its widest position
+    --creation-parameter1 Sets the width of the crack in its widest position
+    --creation-parameter2 Sets the number of steps in crack growth in the non-uniform
+                          cracks
 
     Options used with --simulate:
 
@@ -86,7 +88,8 @@ This command converts the above base model into an image, putting the result in 
 
 And this command runs a simulation for a million rounds:
 
-    drop-tracer --simulate --rounds 1M
+    drop-tracer --simulate --rounds 1M --input base.mod --output result.mod
+
 CONTRIBUTORS
 ------------
 

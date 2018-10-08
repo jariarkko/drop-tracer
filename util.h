@@ -11,6 +11,9 @@ extern void fatalu(const char* message,
 extern void fatalsu(const char* message,
 		    const char* string,
 		    unsigned int x);
+extern void fataluu(const char* message,
+		    unsigned int x1,
+		    unsigned int x2);
 extern void fatalxx(const char* message,
 		    unsigned int x1,
 		    unsigned int x2);
