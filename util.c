@@ -94,3 +94,10 @@ debugf(const char* format, ...) {
     
   }
 }
+
+unsigned int
+subsorzero(unsigned int a,
+	   unsigned int b) {
+  if (b <= a) return(a-b);
+  else return(0);
+}

@@ -57,4 +57,11 @@ dkms.conf
 # Final end product
 drop-tracer
 
+# Test files
+test.jpg
+test.gif
+test.mod
+test.tmp
 
+# Apple files
+.DS_Store

@@ -9,6 +9,14 @@ enum rockinitialization {
   rockinitialization_fractalcrack
 };
 
+enum crackdirection {
+  crackdirection_y,
+  crackdirection_x
+};
+
+#define crackdirection_is_y(d)    ((d) == crackdirection_y)
+#define crackdirection_is_x(d)    ((d) == crackdirection_x)
+
 enum material {
   material_air,
   material_rock,
@@ -55,8 +63,12 @@ phymodel_create(unsigned int unit,
 extern struct phymodel*
 phymodel_initialize_rock(enum rockinitialization style,
 			 int uniform,
-			 unsigned int styleParam1,
-			 unsigned int styleParam2,
+			 unsigned int crackWidth,
+			 unsigned int crackGrowthSteps,
+			 double fractalShrink,
+			 unsigned int fractalLevels,
+			 unsigned int fractalCardinality,
+			 enum crackdirection direction,
 			 unsigned int unit,
 			 unsigned int xSize,
 			 unsigned int ySize,

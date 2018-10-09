@@ -23,5 +23,7 @@ extern void fatalsxx(const char* message,
 		     unsigned int x2);
 extern void debugf(const char* format,
 		   ...);
+extern unsigned int subsorzero(unsigned int a,
+			       unsigned int b);
 
 #endif /* UTIL_H */

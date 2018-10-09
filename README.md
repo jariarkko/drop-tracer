@@ -33,6 +33,7 @@ Where mode-options is one of:
     --image               Convert a selected slice of the model to a 2D image
     --model               Convert a selected slice of the model to a 3D model that can be printed
 
+
 And options is one of:
 
     General options:
@@ -46,6 +47,9 @@ And options is one of:
     --zsize               The z size (height) of the model in units
     --input               Input model file
     --output              Output model or image file
+    --seed		  Provide a random seed, which may be needed when
+                          if test runs need to be repeated deterministically
+
     
     Options used with --create-rock:
     
@@ -53,15 +57,25 @@ And options is one of:
     --fractal-crack       Generates a fractal crack, i.e., a main crack with side cracks
     --uniform             Sets the main crack to be equally wide throughout the model
     --non-uniform         Sets the main crack to be widest in the middle of the model
-    --creation-parameter1 Sets the width of the crack in its widest position
-    --creation-parameter2 Sets the number of steps in crack growth in the non-uniform
+    --crack-width         Sets the width of the crack in its widest position
+    --crack-growth-steps  Sets the number of steps in crack growth in the non-uniform
                           cracks
+    --fractal-shrink      Sets the fractal diminishing factor, i.e., how much the next 
+                          level fractal form is smaller than the current form
+    --fractal-levels      Maximum level of fractal recursion
+    --fractal-cardinality Sets the fractal splitting factor, i.e., how many next level
+                          side fractals are generated from the current form
+    --vertical-crack      Sets the crack to be created vertically (as viewed from an
+                          image generated with -image). This is the default.
+    --horizontal-crack    Sets the crack to be created horizontally
+
 
     Options used with --simulate:
 
     --rounds              Sets the number of rounds. Use suffix "M" as shorthand for
                           million and "B" for billion. For instance, 250M is 250
                           million simulation rounds.
+
                           
     Options used with --image:
 
@@ -74,6 +88,7 @@ And options is one of:
     --imagex              Sets the x value when exporting a model to an image file; the
                           image will be from that x position in the model, while z and y
                           form the image
+
     
 EXAMPLES
 --------
