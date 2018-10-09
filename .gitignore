@@ -58,6 +58,7 @@ dkms.conf
 drop-tracer
 
 # Test files
+test-tracer
 test.jpg
 test.gif
 test.mod

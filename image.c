@@ -12,7 +12,7 @@ image_modelz2image_pixel(unsigned int x,
 			 unsigned int y,
 			 unsigned int z,
 			 struct phymodel* model,
-			 struct phyatom* atom,
+			 phyatom* atom,
 			 void* data);
 
 void
@@ -105,19 +105,23 @@ image_modelz2image_pixel(unsigned int x,
 			 unsigned int y,
 			 unsigned int z,
 			 struct phymodel* model,
-			 struct phyatom* atom,
+			 phyatom* atom,
 			 void* data) {
   unsigned char* pixels = (unsigned char*)data;
-  switch (atom->mat) {
+  enum material mat = phyatom_mat(atom);
+  struct rgb rgb;
+  
+  switch (mat) {
   case material_air:
     pixels[3*(y * (model->xSize) + x)+0] = 0;
     pixels[3*(y * (model->xSize) + x)+1] = 0;
     pixels[3*(y * (model->xSize) + x)+2] = 0;
     break;
   case material_rock:
-    pixels[3*(y * (model->xSize) + x)+0] = atom->color.r;
-    pixels[3*(y * (model->xSize) + x)+1] = atom->color.g;
-    pixels[3*(y * (model->xSize) + x)+2] = atom->color.b;
+    phyatom_color(&rgb,atom);
+    pixels[3*(y * (model->xSize) + x)+0] = rgb.r;
+    pixels[3*(y * (model->xSize) + x)+1] = rgb.g;
+    pixels[3*(y * (model->xSize) + x)+2] = rgb.b;
     break;
   case material_water:
     pixels[3*(y * (model->xSize) + x)+0] = 0;
@@ -125,7 +129,7 @@ image_modelz2image_pixel(unsigned int x,
     pixels[3*(y * (model->xSize) + x)+2] = 255;
     break;
   default:
-    fatal("unrecognised atom material type");
+    fatalu("unrecognised atom material type",(int)mat);
   }
 }
 

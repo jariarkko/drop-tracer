@@ -28,7 +28,7 @@ phymodel_create_initatom(unsigned int x,
 			 unsigned int y,
 			 unsigned int z,
 			 struct phymodel* model,
-			 struct phyatom* atom,
+			 phyatom* atom,
 			 void* data);
 static void
 phymodel_initialize_rock_simplecrack(struct phymodel* model,
@@ -67,7 +67,7 @@ phymodel_create(unsigned int unit,
     fatalu("cannot allocate model for bytes",size);
   }
 
-  debugf("created an image object of %uM bytes (%ux%ux%u), atom size = %u",
+  debugf("created an image object of %uM bytes (%ux%ux%u), atom memory size = %u",
 	 size / 1000000,
 	 xSize, ySize, zSize,
 	 sizeof(model->atoms[0]));
@@ -94,10 +94,14 @@ phymodel_create_initatom(unsigned int x,
 			 unsigned int y,
 			 unsigned int z,
 			 struct phymodel* model,
-			 struct phyatom* atom,
+			 phyatom* atom,
 			 void* data) {
-  atom->mat = material_air;
-  rgb_set_black(&atom->color);
+  struct rgb black;
+  rgb_set_black(&black);
+
+  phyatom_reset(atom);
+  phyatom_set_mat(atom,material_air);
+  phyatom_set_color(atom,&black);
 }
 
 struct phymodel*
@@ -588,9 +592,11 @@ phymodel_initialize_rock_material(struct phymodel* model,
 				  unsigned int y,
 				  unsigned int z) {
   unsigned int atomindex = phymodel_atomindex(model,x,y,z);
-  struct phyatom* atom = &model->atoms[atomindex];
-  atom->mat = material_rock;
-  rgb_set_white(&atom->color);
+  phyatom* atom = &model->atoms[atomindex];
+  struct rgb rgb;
+  phyatom_set_mat(atom,material_rock);
+  rgb_set_white(&rgb);
+  phyatom_set_color(atom,&rgb);
 }
 
 static void
@@ -599,8 +605,8 @@ phymodel_initialize_rock_crackmaterial(struct phymodel* model,
 				       unsigned int y,
 				       unsigned int z) {
   unsigned int atomindex = phymodel_atomindex(model,x,y,z);
-  struct phyatom* atom = &model->atoms[atomindex];
-  atom->mat = material_air;
+  phyatom* atom = &model->atoms[atomindex];
+  phyatom_set_mat(atom,material_air);
 }
 
 static void
@@ -629,7 +635,7 @@ phymodel_mapatoms(struct phymodel* model,
     for (y = 0; y < model->ySize; y++) {
       for (x = 0; x < model->xSize; x++) {
 	unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-	struct phyatom* atom = &model->atoms[atomIndex];
+	phyatom* atom = &model->atoms[atomIndex];
 	(*fn)(x,
 	      y,
 	      z,
@@ -654,7 +660,7 @@ phymodel_mapatoms_atz(struct phymodel* model,
   for (y = 0; y < model->ySize; y++) {
     for (x = 0; x < model->xSize; x++) {
       unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-      struct phyatom* atom = &model->atoms[atomIndex];
+      phyatom* atom = &model->atoms[atomIndex];
       (*fn)(x,
 	    y,
 	    z,
@@ -678,7 +684,7 @@ phymodel_mapatoms_atx(struct phymodel* model,
   for (z = 0; z < model->zSize; z++) {
     for (y = 0; y < model->ySize; y++) {
       unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-      struct phyatom* atom = &model->atoms[atomIndex];
+      phyatom* atom = &model->atoms[atomIndex];
       (*fn)(x,
 	    y,
 	    z,
@@ -702,7 +708,7 @@ phymodel_mapatoms_aty(struct phymodel* model,
   for (z = 0; z < model->zSize; z++) {
     for (x = 0; x < model->xSize; x++) {
       unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-      struct phyatom* atom = &model->atoms[atomIndex];
+      phyatom* atom = &model->atoms[atomIndex];
       (*fn)(x,
 	    y,
 	    z,
@@ -816,24 +822,4 @@ phymodel_write(struct phymodel* model,
     return;
   }
   fclose(f);
-}
-
-void
-rgb_set(struct rgb* rgb,
-	unsigned char r,
-	unsigned char g,
-	unsigned char b) {
-  rgb->r = r;
-  rgb->g = g;
-  rgb->b = b;
-}
-
-void
-rgb_set_black(struct rgb* rgb) {
-  rgb->r = rgb->g = rgb->b = 0x00;
-}
-
-void
-rgb_set_white(struct rgb* rgb) {
-  rgb->r = rgb->g = rgb->b = 0xFF;
 }

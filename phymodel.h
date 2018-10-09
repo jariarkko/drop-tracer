@@ -18,9 +18,9 @@ enum crackdirection {
 #define crackdirection_is_x(d)    ((d) == crackdirection_x)
 
 enum material {
-  material_air,
-  material_rock,
-  material_water
+  material_air   = 0,
+  material_rock  = 1,
+  material_water = 2
 };
 
 struct rgb {
@@ -29,10 +29,22 @@ struct rgb {
   unsigned char b;
 };
 
-struct phyatom {
-  enum material mat;
-  struct rgb color;
-};
+typedef unsigned char phyatom;
+
+#define phyatom_reset(a)		(*(a) = 0x00)
+#define phyatom_mat(a)                  ((enum material)((*(a))&0x03))
+#define phyatom_set_mat(a,m)            (*(a) = ((unsigned char)((*(a))&0xFC) + (m)))
+#define phyatom_color_rgb(a)            (((*(a)) >> 2) & 0x3F)
+#define phyatom_color_rgb_r(a)          ((phyatom_color_rgb(a) >> 4) & 0x03)
+#define phyatom_color_rgb_g(a)          ((phyatom_color_rgb(a) >> 2) & 0x03)
+#define phyatom_color_rgb_b(a)          ((phyatom_color_rgb(a) >> 0) & 0x03)
+#define phyatom_color(rgb,a)            { ((rgb)->r = phyatom_shortrgbtolong(phyatom_color_rgb_r(a)));   \
+                                          ((rgb)->g = phyatom_shortrgbtolong(phyatom_color_rgb_g(a)));   \
+                                          ((rgb)->b = phyatom_shortrgbtolong(phyatom_color_rgb_b(a))); }
+#define phyatom_set_color(a,rgb)        (*(a) = (((*(a))&0x03) +	                                 \
+					        ((phyatom_longrgbtoshort((rgb)->r) & 0x03) << 6) +       \
+					        ((phyatom_longrgbtoshort((rgb)->g) & 0x03) << 4) +       \
+						((phyatom_longrgbtoshort((rgb)->b) & 0x03) << 2)))
 
 struct phymodel {
   unsigned int magic;
@@ -40,10 +52,10 @@ struct phymodel {
   unsigned int xSize; /* in number of units */
   unsigned int ySize; /* in number of units */
   unsigned int zSize; /* in number of units */
-  struct phyatom atoms[1];
+  phyatom atoms[1];
 };
 
-#define phymodel_sizeinbytes(x,y,z)	(sizeof(struct phymodel) + ((x)*(y)*(z)-1) * sizeof(struct phyatom))
+#define phymodel_sizeinbytes(x,y,z)	(sizeof(struct phymodel) + ((x)*(y)*(z)-1) * sizeof(phyatom))
 #define phymodel_atomindex(m,x,y,z)	(((z) * (m)->xSize * (m)->ySize) + \
 					 ((y) * (m)->xSize) +		   \
 					 (x))
@@ -52,7 +64,7 @@ typedef void (*phyatom_fn)(unsigned int x,
 			   unsigned int y,
 			   unsigned int z,
 			   struct phymodel* model,
-			   struct phyatom* atom,
+			   phyatom* atom,
 			   void* data);
 
 extern struct phymodel*
@@ -102,11 +114,21 @@ rgb_set_black(struct rgb* rgb);
 extern void
 rgb_set_white(struct rgb* rgb);
 extern void
+rgb_set_blue(struct rgb* rgb);
+extern void
+rgb_set_red(struct rgb* rgb);
+extern void
+rgb_set_green(struct rgb* rgb);
+extern void
 phymodel_destroy(struct phymodel* model);
 extern struct phymodel*
 phymodel_read(const char* filename);
 extern void
 phymodel_write(struct phymodel* model,
 	       const char* filename);
+extern unsigned char
+phyatom_longrgbtoshort(unsigned char rgb);
+extern unsigned char
+phyatom_shortrgbtolong(unsigned char val);
 
 #endif /* PHYMODEL_H */
