@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include "util.h"
 #include "phymodel.h"
+#include "simul.h"
 #include "image.h"
 
 enum drop_tracer_operation {
@@ -20,9 +21,9 @@ static enum drop_tracer_operation operation = drop_tracer_operation_simulate;
 static const char* inputfile = 0;
 static const char* outputfile = 0;
 static unsigned int unit = 1000 * 10; /* 0.1 mm */
-static unsigned int xSize = 128;      /* 12.8 mm */
-static unsigned int ySize = 128;      /* 12.8 mm */
-static unsigned int zSize = 128;      /* 12.8 mm */
+static unsigned int xSize = 1024;      /* 12.8 mm */
+static unsigned int ySize = 1024;      /* 12.8 mm */
+static unsigned int zSize = 1024;      /* 12.8 mm */
 static enum rockinitialization creationStyle = rockinitialization_simplecrack;
 static unsigned int creationStyleUniform = 0;
 static unsigned int creationStyleCrackWidth = 10;
@@ -34,7 +35,9 @@ static enum crackdirection creationStyleDirection = crackdirection_y;
 static unsigned int imageZ = 0;
 static unsigned int imageX = 0;
 static unsigned int imageY = 0;
-static unsigned int rounds = 1000;
+static unsigned int simulRounds = 1000;
+static unsigned int simulDropFrequency = 100;
+static double simulDropSize = 30;
 
 static struct option long_options[] = {
   
@@ -65,6 +68,8 @@ static struct option long_options[] = {
   {"fractal-shrink",               required_argument, 0, 'f'},
   {"fractal-levels",               required_argument, 0, 'L'},
   {"fractal-cardinality",          required_argument, 0, 'F'},
+  {"drop-frequency",               required_argument, 0, 'D'},
+  {"drop-size",                    required_argument, 0, 'P'},
   {"xsize",                        required_argument, 0, 'x'},
   {"ysize",                        required_argument, 0, 'y'},
   {"zsize",                        required_argument, 0, 'z'},
@@ -156,6 +161,20 @@ main(int argc,
 	}
 	break;
 	
+      case 'D':
+	simulDropFrequency = atoi(optarg);
+	if (simulDropFrequency <= 0) {
+	  fatals("simulator drop frequency must be a positive integer, got",optarg);
+	}
+	break;
+	
+      case 'P':
+	simulDropSize = atof(optarg);
+	if (simulDropSize <= 0.0) {
+	  fatals("simulator drop size must be a positive floating point number, got",optarg);
+	}
+	break;
+	
       case 'x':
 	xSize = atoi(optarg);
 	if (xSize <= 0) {
@@ -207,24 +226,24 @@ main(int argc,
 	break;
 	
       case 'R':
-	rounds = atoi(optarg);
-	if (rounds > 0 && strlen(optarg) > 0 && isalpha(optarg[strlen(optarg)-1])) {
+	simulRounds = atoi(optarg);
+	if (simulRounds > 0 && strlen(optarg) > 0 && isalpha(optarg[strlen(optarg)-1])) {
 	  switch (toupper(optarg[strlen(optarg)-1])) {
 	  case 'K':
-	    rounds *= 1000;
+	    simulRounds *= 1000;
 	    break;
 	  case 'M':
-	    rounds *= 1000 * 1000;
+	    simulRounds *= 1000 * 1000;
 	    break;
 	  case 'B':
-	    rounds *= 1000 * 1000 * 1000;
+	    simulRounds *= 1000 * 1000 * 1000;
 	    break;
 	  default:
 	    fatals("unrecognised unit in --rounds arguments, expected K, M or B, got", optarg);
 	    break;
 	  }
 	}
-	if (rounds <= 0) {
+	if (simulRounds <= 0) {
 	  fatals("rounds should be a positive number",optarg);
 	}
 	break;
@@ -291,8 +310,16 @@ main(int argc,
     if (outputfile == 0) {
       fatal("output file should be specified for --simulate");
     }
-    /* ... */
-    fatal("simulation not implemented");
+    model = phymodel_read(inputfile);
+    if (model == 0) {
+      fatals("failed to read input model",inputfile);
+    }
+    simulator_simulate(model,
+		       simulRounds,
+		       simulDropFrequency,
+		       simulDropSize);
+    phymodel_write(model,outputfile);
+    phymodel_destroy(model);
     break;
     
   case drop_tracer_operation_image:

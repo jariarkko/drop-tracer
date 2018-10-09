@@ -1,11 +1,13 @@
 
 SOURCE_HEADERS	=	image.h \
 			phymodel.h \
+			simul.h \
 			util.h
 SOURCE_CODE	=	image.c \
 			main.c \
 			phyatom.c \
 			phymodel.c \
+			simul.c \
 			util.c
 SOURCE_COMPILE	=	Makefile
 SOURCES		=	$(SOURCE_HEADERS) \
@@ -14,6 +16,7 @@ SOURCES		=	$(SOURCE_HEADERS) \
 LIBOBJECTS	=	image.o \
 			phyatom.o \
 			phymodel.o \
+			simul.o \
 			util.o
 CMDOBJECTS	=	main.o
 TESTOBJECTS	=	test.o

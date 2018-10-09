@@ -75,6 +75,9 @@ And options is one of:
     --rounds              Sets the number of rounds. Use suffix "M" as shorthand for
                           million and "B" for billion. For instance, 250M is 250
                           million simulation rounds.
+    --drop-frequency      How many simulation rounds there are between drops of water
+    --drop-size           Sets the radius of a drop of water in mm (in floating point
+                          form, for instance as in "--drop-size 0.1")
 
                           
     Options used with --image:
