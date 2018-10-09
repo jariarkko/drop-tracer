@@ -15,6 +15,7 @@ static void atomtests(void);
 int
 main(int argc,
      char** argv) {
+  if (argc > 1) debug = 1;
   atomtests();
   exit(0);
 }
@@ -33,11 +34,11 @@ atomtests(void) {
   assert(color1.b == 0);
   rgb_set_white(&color1);
   phyatom_set_color(&atom1,&color1);
-  printf("atom = %02x, color = %02x.%02x.%02x\n", atom1, color1.r, color1.g, color1.b);
-  printf("rgb = %02x\n", phyatom_color_rgb(&atom1));
-  printf("rgb_r = %02x\n", phyatom_color_rgb_r(&atom1));
-  printf("rgb_g = %02x\n", phyatom_color_rgb_g(&atom1));
-  printf("rgb_b = %02x\n", phyatom_color_rgb_b(&atom1));
+  debugf("atom = %02x, color = %02x.%02x.%02x\n", atom1, color1.r, color1.g, color1.b);
+  debugf("rgb = %02x\n", phyatom_color_rgb(&atom1));
+  debugf("rgb_r = %02x\n", phyatom_color_rgb_r(&atom1));
+  debugf("rgb_g = %02x\n", phyatom_color_rgb_g(&atom1));
+  debugf("rgb_b = %02x\n", phyatom_color_rgb_b(&atom1));
   assert(phyatom_shortrgbtolong(phyatom_color_rgb_r(&atom1)) == 0xFF);
   assert(phyatom_shortrgbtolong(phyatom_color_rgb_g(&atom1)) == 0xFF);
   assert(phyatom_shortrgbtolong(phyatom_color_rgb_b(&atom1)) == 0xFF);
