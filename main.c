@@ -32,7 +32,7 @@ static double creationStyleFractalShrink = 0.5;
 static unsigned int creationStyleFractalLevels = 2;
 static unsigned int creationStyleFractalCardinality = 3;
 static enum crackdirection creationStyleDirection = crackdirection_y;
-static unsigned int imageZ = 0;
+static unsigned int imageZ = 10;
 static unsigned int imageX = 0;
 static unsigned int imageY = 0;
 static unsigned int simulRounds = 1000;
@@ -201,6 +201,8 @@ main(int argc,
 	if (ival < 0) {
 	  fatals("image coordinate must be a non-negative integer",optarg);
 	}
+	imageX = 0;
+	imageY = 0;
 	break;
 	
       case 'X':
@@ -208,6 +210,8 @@ main(int argc,
 	if (ival < 0) {
 	  fatals("image coordinate must be a non-negative integer",optarg);
 	}
+	imageZ = 0;
+	imageY = 0;
 	break;
 	
       case 'Y':
@@ -215,6 +219,8 @@ main(int argc,
 	if (ival < 0) {
 	  fatals("image coordinate must be a non-negative integer",optarg);
 	}
+	imageZ = 0;
+	imageX = 0;
 	break;
 	
       case 'i':
@@ -333,9 +339,19 @@ main(int argc,
     if (model == 0) {
       fatals("failed to read input model",inputfile);
     }
-    image_modelz2image(model,
-		       imageZ,
-		       outputfile);
+    if (imageX > 0) {
+      image_modelx2image(model,
+			 imageX,
+			 outputfile);
+    } else if (imageY > 0) {
+      image_modely2image(model,
+			 imageY,
+			 outputfile);
+    } else {
+      image_modelz2image(model,
+			 imageZ,
+			 outputfile);
+    }
     phymodel_destroy(model);
     break;
     
@@ -350,8 +366,8 @@ main(int argc,
     if (model == 0) {
       fatals("failed to read input model",inputfile);
     }
-    image_modelz2image3d(model,
-			 outputfile);
+    image_model2image3d(model,
+			outputfile);
     phymodel_destroy(model);
     break;
     

@@ -84,7 +84,7 @@ And options is one of:
 
     --imagez              Sets the z value when exporting a model to an image file; the
                           image will be from that z height in the model, while x and y
-                          form the image
+                          form the image. This is the default, at 10 units.
     --imagey              Sets the y value when exporting a model to an image file; the
                           image will be from that y position in the model, while z and x
                           form the image
@@ -98,7 +98,7 @@ EXAMPLES
 
 This command creates a simple 10 units wide crack, putting the resulting base model in the file base.mod:
 
-    drop-tracer --create-rock --simple-crack --creation-parameter 10 --output base.mod
+    drop-tracer --create-rock --simple-crack --crack-width 10 --output base.mod
 
 This command converts the above base model into an image, putting the result in base.jpg:
 

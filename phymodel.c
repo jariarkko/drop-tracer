@@ -657,6 +657,7 @@ phymodel_mapatoms_atz(struct phymodel* model,
   unsigned int y;
   
   assert(fn != 0);
+  assert(z < model->zSize);
   for (y = 0; y < model->ySize; y++) {
     for (x = 0; x < model->xSize; x++) {
       unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
@@ -681,8 +682,9 @@ phymodel_mapatoms_atx(struct phymodel* model,
   unsigned int y;
   
   assert(fn != 0);
-  for (z = 0; z < model->zSize; z++) {
-    for (y = 0; y < model->ySize; y++) {
+  assert(x < model->xSize);
+  for (y = 0; y < model->ySize; y++) {
+    for (z = 0; z < model->zSize; z++) {
       unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
       phyatom* atom = &model->atoms[atomIndex];
       (*fn)(x,
@@ -705,8 +707,9 @@ phymodel_mapatoms_aty(struct phymodel* model,
   unsigned int x;
   
   assert(fn != 0);
-  for (z = 0; z < model->zSize; z++) {
-    for (x = 0; x < model->xSize; x++) {
+  assert(y < model->ySize);
+  for (x = 0; x < model->xSize; x++) {
+    for (z = 0; z < model->zSize; z++) {
       unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
       phyatom* atom = &model->atoms[atomIndex];
       (*fn)(x,

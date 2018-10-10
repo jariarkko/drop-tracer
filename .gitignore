@@ -59,10 +59,10 @@ drop-tracer
 
 # Test files
 test-tracer
-test.jpg
-test.gif
-test.mod
-test.tmp
+test*.jpg
+test*.gif
+test*.mod
+test*.tmp
 
 # Apple files
 .DS_Store
