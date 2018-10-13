@@ -4,19 +4,6 @@
 
 #define PHYMODEL_MAGIC		0xCA5EF058
 
-enum rockinitialization {
-  rockinitialization_simplecrack,
-  rockinitialization_fractalcrack
-};
-
-enum crackdirection {
-  crackdirection_y,
-  crackdirection_x
-};
-
-#define crackdirection_is_y(d)    ((d) == crackdirection_y)
-#define crackdirection_is_x(d)    ((d) == crackdirection_x)
-
 enum material {
   material_air   = 0,
   material_rock  = 1,
@@ -72,19 +59,6 @@ phymodel_create(unsigned int unit,
 		unsigned int xSize,
 		unsigned int ySize,
 		unsigned int zSize);
-extern struct phymodel*
-phymodel_initialize_rock(enum rockinitialization style,
-			 int uniform,
-			 unsigned int crackWidth,
-			 unsigned int crackGrowthSteps,
-			 double fractalShrink,
-			 unsigned int fractalLevels,
-			 unsigned int fractalCardinality,
-			 enum crackdirection direction,
-			 unsigned int unit,
-			 unsigned int xSize,
-			 unsigned int ySize,
-			 unsigned int zSize);
 extern void
 phymodel_mapatoms(struct phymodel* model,
 		  phyatom_fn fn,

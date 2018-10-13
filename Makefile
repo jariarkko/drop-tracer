@@ -1,12 +1,16 @@
 
 SOURCE_HEADERS	=	image.h \
 			phymodel.h \
+			rock.h \
 			simul.h \
 			util.h
 SOURCE_CODE	=	image.c \
 			main.c \
 			phyatom.c \
 			phymodel.c \
+			rockcave.c \
+			rockcrack.c \
+			rockutil.c \
 			simul.c \
 			util.c
 SOURCE_COMPILE	=	Makefile
@@ -16,6 +20,9 @@ SOURCES		=	$(SOURCE_HEADERS) \
 LIBOBJECTS	=	image.o \
 			phyatom.o \
 			phymodel.o \
+			rockcave.o \
+			rockcrack.o \
+			rockutil.o \
 			simul.o \
 			util.o
 CMDOBJECTS	=	main.o
@@ -40,6 +47,15 @@ phyatom.o:	phyatom.c $(SOURCE_HEADERS)
 	$(CC) -c $(CFLAGS) $<
 
 phymodel.o:	phymodel.c $(SOURCE_HEADERS)
+	$(CC) -c $(CFLAGS) $<
+
+rockcave.o:	rockcave.c $(SOURCE_HEADERS)
+	$(CC) -c $(CFLAGS) $<
+
+rockcrack.o:	rockcrack.c $(SOURCE_HEADERS)
+	$(CC) -c $(CFLAGS) $<
+
+rockutil.o:	rockutil.c $(SOURCE_HEADERS)
 	$(CC) -c $(CFLAGS) $<
 
 simul.o:	simul.c $(SOURCE_HEADERS)

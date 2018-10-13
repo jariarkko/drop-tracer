@@ -52,7 +52,9 @@ And options is one of:
 
     
     Options used with --create-rock:
-    
+
+    --cave                Generates a cave with a crack in the roof of the cave tunnel
+    --no-cave             Generates only a roof
     --simple-crack        Generates a simple crack with no side cracks
     --fractal-crack       Generates a fractal crack, i.e., a main crack with side cracks
     --uniform             Sets the main crack to be equally wide throughout the model

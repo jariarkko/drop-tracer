@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include "util.h"
 #include "phymodel.h"
+#include "rock.h"
 #include "simul.h"
 #include "image.h"
 
@@ -32,6 +33,7 @@ static double creationStyleFractalShrink = 0.5;
 static unsigned int creationStyleFractalLevels = 2;
 static unsigned int creationStyleFractalCardinality = 3;
 static enum crackdirection creationStyleDirection = crackdirection_y;
+static int creationStyleCave = 1;
 static unsigned int imageZ = 10;
 static unsigned int imageX = 0;
 static unsigned int imageY = 0;
@@ -53,6 +55,8 @@ static struct option long_options[] = {
   {"uniform", no_argument,         (int*)&creationStyleUniform, 1},
   {"non-uniform", no_argument,     (int*)&creationStyleUniform, 0},
   {"vertical-crack", no_argument,  (int*)&creationStyleDirection, (int)crackdirection_y},
+  {"cave", no_argument,            (int*)&creationStyleCave, 1},
+  {"no-cave", no_argument,         (int*)&creationStyleCave, 0},
   {"horizontal-crack", no_argument,(int*)&creationStyleDirection, (int)crackdirection_x},
   {"simulate", no_argument,        (int*)&operation, drop_tracer_operation_simulate},
   {"image", no_argument,           (int*)&operation, drop_tracer_operation_image},
@@ -286,7 +290,14 @@ main(int argc,
    */
   
   switch (operation) {
+
   case drop_tracer_operation_createrock:
+
+    /*
+     * Create a rock model, a roof on top and (optionally) a cave
+     * tunnel underneath
+     */
+    
     if (inputfile != 0) {
       fatal("input file should not be specified for --create-rock");
     }
@@ -301,6 +312,7 @@ main(int argc,
 				     creationStyleFractalLevels,
 				     creationStyleFractalCardinality,
 				     creationStyleDirection,
+				     creationStyleCave,
 				     unit,
 				     xSize,
 				     ySize,
@@ -308,8 +320,13 @@ main(int argc,
     phymodel_write(model,outputfile);
     phymodel_destroy(model);
     break;
-    
+
   case drop_tracer_operation_simulate:
+
+    /*
+     * Simulate the model by dropping water droplets
+     */
+    
     if (inputfile == 0) {
       fatal("input file should be specified for --simulate");
     }
@@ -329,6 +346,11 @@ main(int argc,
     break;
     
   case drop_tracer_operation_image:
+
+    /*
+     * Convert the (current) model to a 2D image along a chosen axis
+     */
+    
     if (inputfile == 0) {
       fatal("input file should be specified for --image");
     }
@@ -356,6 +378,12 @@ main(int argc,
     break;
     
   case drop_tracer_operation_model:
+
+    /*
+     * Convert the (current) model to a 3D model that can be, for
+     * instance, printed with a 3D-printer
+     */
+    
     if (inputfile == 0) {
       fatal("input file should be specified for --model");
     }
@@ -372,6 +400,11 @@ main(int argc,
     break;
     
   default:
+
+    /*
+     * Failure cases
+     */
+    
     fatal("drop-tracer: operation is invalid");
   }
   
