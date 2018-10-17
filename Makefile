@@ -76,6 +76,8 @@ test-tracer:	$(LIBOBJECTS) \
 	$(CC) -o test-tracer $(TESTOBJECTS) $(LIBOBJECTS) $(LDFLAGS_IMG) -lm
 
 BASETESTSETTINGS	=	--xsize 64 --ysize 64 --zsize 64
+BASETESTSETTINGSLARGE	=	--xsize 512 --ysize 512 --zsize 512
+BASETESTSETTINGSLARGEWIDE=	--xsize 1024 --ysize 512 --zsize 512
 
 runtest:	test-tracer
 	./test-tracer
@@ -101,6 +103,18 @@ runtest:	test-tracer
 	./drop-tracer --image --input test4.mod --output test4.z.jpg
 	./drop-tracer --image --imagey 32 --input test4.mod --output test4.y.jpg
 	./drop-tracer --image --imagex 32 --input test4.mod --output test4.x.jpg
+	./drop-tracer --create-rock --fractal-crack --cave \
+		      $(BASETESTSETTINGSLARGE) \
+		      --crack-width 10 --non-uniform --output test5.mod
+	./drop-tracer --image --input test5.mod --output test5.z.jpg
+	./drop-tracer --image --imagey 32 --input test5.mod --output test5.y.jpg
+	./drop-tracer --image --imagex 32 --input test5.mod --output test5.x.jpg
+	./drop-tracer --create-rock --fractal-crack --cave \
+		      $(BASETESTSETTINGSLARGEWIDE) \
+		      --crack-width 10 --non-uniform --output test6.mod
+	./drop-tracer --image --input test6.mod --output test6.z.jpg
+	./drop-tracer --image --imagey 32 --input test6.mod --output test6.y.jpg
+	./drop-tracer --image --imagex 32 --input test6.mod --output test6.x.jpg
 
 install:	drop-tracer
 	cp drop-tracer /usr/sbin/drop-tracer
@@ -111,15 +125,8 @@ clean:
 	rm -f debug.jpg
 	rm -f test.mod
 	rm -f test.jpg
-	rm -f test1*.mod
-	rm -f test1*.jpg
-	rm -f test2*.mod
-	rm -f test2*.jpg
-	rm -f test3*.mod
-	rm -f test3*.jpg
-	rm -f test4*.jpg
-	rm -f test4*.jpg
-	rm -f test4*.txt
+	rm -f test[1-9]*.mod
+	rm -f test[1-9]*.jpg
 
 wc:
 	wc -l $(SOURCES)

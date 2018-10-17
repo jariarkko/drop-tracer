@@ -319,20 +319,8 @@ main(int argc,
 				     xSize,
 				     ySize,
 				     zSize);
-    if (debug) {
-      image_modelx2image(model,0,"debug.final2.x.txt");
-      image_modely2image(model,32,"debug.final2.y.txt");
-      image_modelz2image(model,20,"debug.final2.z.txt");
-      image_modely2image(model,0,"debug.final2.jpg");
-    }
     debugf("now doing the main mod write!");
     phymodel_write(model,outputfile);
-    if (debug) {
-      image_modelx2image(model,0,"debug.final3.x.txt");
-      image_modely2image(model,32,"debug.final3.y.txt");
-      image_modelz2image(model,20,"debug.final3.z.txt");
-      image_modely2image(model,0,"debug.final3.jpg");
-    }
     phymodel_destroy(model);
     break;
 
@@ -376,9 +364,6 @@ main(int argc,
     if (model == 0) {
       fatals("failed to read input model",inputfile);
     }
-    if (debug) {
-      image_modely2image(model,32,"debug.final5.y.txt");
-    }
     phymodel_write(model,outputfile);
     phymodel_destroy(model);
     break;
@@ -398,9 +383,6 @@ main(int argc,
     model = phymodel_read(inputfile);
     if (model == 0) {
       fatals("failed to read input model",inputfile);
-    }
-    if (debug) {
-      image_modely2image(model,32,"debug.final6.y.txt");
     }
     if (imageX > 0) {
       image_modelx2image(model,
