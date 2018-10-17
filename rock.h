@@ -34,20 +34,20 @@ phymodel_initialize_rock_cavetunnel(struct phymodel* model,
 				    enum crackdirection direction,
 				    unsigned int startZ);
 extern void
-phymodel_initialize_rock_material(struct phymodel* model,
-				  unsigned int x,
-				  unsigned int y,
-				  unsigned int z);
+phymodel_set_rock_material(struct phymodel* model,
+			   unsigned int x,
+			   unsigned int y,
+			   unsigned int z);
 extern void
-phymodel_initialize_rock_crackmaterial(struct phymodel* model,
-				       unsigned int x,
-				       unsigned int y,
-				       unsigned int z);
+phymodel_set_rock_crackmaterial(struct phymodel* model,
+				unsigned int x,
+				unsigned int y,
+				unsigned int z);
 extern void
-phymodel_initialize_rock_crackmaterial_thickness(struct phymodel* model,
-						 unsigned int x,
-						 unsigned int y,
-						 unsigned int startZ,
-						 unsigned int zThickness);
+phymodel_set_rock_crackmaterial_thickness(struct phymodel* model,
+					  unsigned int x,
+					  unsigned int y,
+					  unsigned int startZ,
+					  unsigned int zThickness);
 
 #endif /* ROCK_H */

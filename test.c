@@ -11,12 +11,14 @@
 #include "image.h"
 
 static void atomtests(void);
+static void phymodeltests(void);
 
 int
 main(int argc,
      char** argv) {
   if (argc > 1) debug = 1;
   atomtests();
+  phymodeltests();
   exit(0);
 }
 
@@ -58,4 +60,27 @@ atomtests(void) {
   assert(color2.r == 0);
   assert(color2.g == 0);
   assert(color2.b == 0xFF);
+}
+
+static int
+approxcompare(double expect,
+	      double maxerror,
+	      double value) {
+  if (debug) debugf("is value %f in range of %f +-%f?", value, expect, maxerror);
+  if (value == expect) return(1);
+  if (value < expect - maxerror) return(0);
+  if (value > expect + maxerror) return(0);
+  return(1);
+}
+
+static void
+phymodeltests(void) {
+  double dist;
+
+  dist = phymodel_distance2d(0,0,0,0);
+  assert(approxcompare(0.0,0.001,dist));
+  dist = phymodel_distance2d(1,0,0,0);
+  assert(approxcompare(1.0,0.001,dist));
+  dist = phymodel_distance2d(1,1,0,0);
+  assert(approxcompare(1.4,0.1,dist));
 }

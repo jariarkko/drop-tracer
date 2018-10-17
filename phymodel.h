@@ -29,9 +29,29 @@ typedef unsigned char phyatom;
                                           ((rgb)->g = phyatom_shortrgbtolong(phyatom_color_rgb_g(a)));   \
                                           ((rgb)->b = phyatom_shortrgbtolong(phyatom_color_rgb_b(a))); }
 #define phyatom_set_color(a,rgb)        (*(a) = (((*(a))&0x03) +	                                 \
-					        ((phyatom_longrgbtoshort((rgb)->r) & 0x03) << 6) +       \
-					        ((phyatom_longrgbtoshort((rgb)->g) & 0x03) << 4) +       \
+			   		        ((phyatom_longrgbtoshort((rgb)->r) & 0x03) << 6) +       \
+			   		        ((phyatom_longrgbtoshort((rgb)->g) & 0x03) << 4) +       \
 						((phyatom_longrgbtoshort((rgb)->b) & 0x03) << 2)))
+
+/*
+ * The coordinate systems is (x,y,z) and the coordinates represent a
+ * cube as follows:
+ *
+ *                        .
+ *                       /|\  z -- vertical
+ *                        |
+ *                        |
+ *                  _     |
+ *                 /\     |
+ *          y --     \    |
+ *        horizontal  \   |
+ *                     \  |
+ *                      \ |
+ *                       \|
+ *                        o--------------->   x -- horizontal
+ *
+ *  
+ */
 
 struct phymodel {
   unsigned int magic;
@@ -104,5 +124,9 @@ extern unsigned char
 phyatom_longrgbtoshort(unsigned char rgb);
 extern unsigned char
 phyatom_shortrgbtolong(unsigned char val);
-
+extern double
+phymodel_distance2d(unsigned int x1,
+		    unsigned int y1,
+		    unsigned int x2,
+		    unsigned int y2);
 #endif /* PHYMODEL_H */

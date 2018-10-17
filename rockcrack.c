@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "util.h"
 #include "phymodel.h"
+#include "image.h"
 #include "rock.h"
 
 static void
@@ -63,6 +64,7 @@ phymodel_initialize_rock(enum rockinitialization style,
   debugf("initializing rock...");
   debugf("phymodel_initialize_rock param1 %u param2 %u param3 %f param4 %u",
 	 crackWidth, crackGrowthSteps, fractalShrink, fractalCardinality);
+  debugf("cave = %u", cave);
   
   /*
    * Fill the entire model with rock to the designated thickness
@@ -71,21 +73,9 @@ phymodel_initialize_rock(enum rockinitialization style,
   for (z = freeSpaceAboveRock; z < freeSpaceAboveRock + rockThickness && z < model->zSize; z++) {
     for (y = 0; y < model->ySize; y++) {
       for (x = 0; x < model->xSize; x++) {
-	phymodel_initialize_rock_material(model,x,y,z);
+	phymodel_set_rock_material(model,x,y,z);
       }
     }
-  }
-  
-  /*
-   * Draw a cave tunnel underneath?
-   */
-  
-  if (cave) {
-    
-    phymodel_initialize_rock_cavetunnel(model,
-					direction,
-					freeSpaceAboveRock + rockThickness);
-    
   }
   
   /*
@@ -121,6 +111,24 @@ phymodel_initialize_rock(enum rockinitialization style,
     fatal("unrecognised rock creation style");
   }
 
+  /*
+   * Draw a cave tunnel underneath?
+   */
+  
+  if (cave) {
+    
+    phymodel_initialize_rock_cavetunnel(model,
+					direction,
+					freeSpaceAboveRock + rockThickness);
+    if (debug) {
+      image_modelx2image(model,0,"debug.final1.x.txt");
+      image_modely2image(model,32,"debug.final1.y.txt");
+      image_modelz2image(model,freeSpaceAboveRock + rockThickness,"debug.final1.z.txt");
+      image_modely2image(model,0,"debug.final1.jpg");
+    }
+    
+  }
+  
   /*
    * Done
    */
@@ -310,7 +318,7 @@ phymodel_initialize_rock_simplecrack(struct phymodel* model,
 	   x < widthtable[y].leftsidewidth + widthtable[y].crackwidth;
 	   x++) {
 	assert(x < model->xSize);
-	phymodel_initialize_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
+	phymodel_set_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
       }
     }
 
@@ -327,7 +335,7 @@ phymodel_initialize_rock_simplecrack(struct phymodel* model,
 	   y < widthtable[x].leftsidewidth + widthtable[x].crackwidth;
 	   y++) {
 	assert(y < model->ySize);
-	phymodel_initialize_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
+	phymodel_set_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
       }
     }
     
@@ -402,7 +410,7 @@ phymodel_initialize_rock_fractalcrack(struct phymodel* model,
 	   x++) {
 	assert(x < startX + xSize);
 	assert(x < model->xSize);
-	phymodel_initialize_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
+	phymodel_set_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
       }
     }
 
@@ -467,7 +475,7 @@ phymodel_initialize_rock_fractalcrack(struct phymodel* model,
 	   y++) {
 	assert(y < startY + ySize);
 	assert(y < model->ySize);
-	phymodel_initialize_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
+	phymodel_set_rock_crackmaterial_thickness(model,x,y,startZ,zThickness);
       }
     }
 

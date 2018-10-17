@@ -95,6 +95,12 @@ runtest:	test-tracer
 		      --output test3.mod
 	./drop-tracer --image --input test3.mod --output test3.z.jpg
 	./drop-tracer --image --imagey 32 --input test3.mod --output test3.y.jpg
+	./drop-tracer --create-rock --simple-crack --cave \
+		      $(BASETESTSETTINGS) \
+		      --crack-width 10 --uniform --output test4.mod
+	./drop-tracer --image --input test4.mod --output test4.z.jpg
+	./drop-tracer --image --imagey 32 --input test4.mod --output test4.y.jpg
+	./drop-tracer --image --imagex 32 --input test4.mod --output test4.x.jpg
 
 install:	drop-tracer
 	cp drop-tracer /usr/sbin/drop-tracer
@@ -102,6 +108,7 @@ install:	drop-tracer
 clean:
 	rm -f drop-tracer $(CMDOBJECTS) $(LIBOBJECTS)
 	rm -f *~
+	rm -f debug.jpg
 	rm -f test.mod
 	rm -f test.jpg
 	rm -f test1*.mod
@@ -110,6 +117,9 @@ clean:
 	rm -f test2*.jpg
 	rm -f test3*.mod
 	rm -f test3*.jpg
+	rm -f test4*.jpg
+	rm -f test4*.jpg
+	rm -f test4*.txt
 
 wc:
 	wc -l $(SOURCES)

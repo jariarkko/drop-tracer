@@ -24,13 +24,26 @@ phymodel_create(unsigned int unit,
   
   unsigned int size = phymodel_sizeinbytes(xSize,ySize,zSize);
   struct phymodel* model = (struct phymodel*)malloc(size);
-
+  unsigned int convenientsize = size;
+  const char* convenientunit = "B";
+  
   if (model == 0) {
     fatalu("cannot allocate model for bytes",size);
   }
 
-  debugf("created an image object of %uM bytes (%ux%ux%u), atom memory size = %u",
-	 size / 1000000,
+  if (convenientsize >= 1024 * 1024 * 1024) {
+    convenientsize /= 1024 * 1024 * 1024;
+    convenientunit = "G";
+  } else if (convenientsize >= 1024 * 1024) {
+    convenientsize /= 1024 * 1024;
+    convenientunit = "M";
+  } else if (convenientsize >= 1024) {
+    convenientsize /= 1024;
+    convenientunit = "K";
+  }
+  
+  debugf("created an image object of %u%s bytes (%ux%ux%u), atom memory size = %u",
+	 convenientsize, convenientunit,
 	 xSize, ySize, zSize,
 	 sizeof(model->atoms[0]));
   debugf("unit is %f mm, model size %fm x %fm x %fm (%f m3)",
@@ -101,6 +114,7 @@ phymodel_mapatoms_atz(struct phymodel* model,
   unsigned int x;
   unsigned int y;
   
+  debugf("phymodel_mapatoms_atz z=%u", z);
   assert(fn != 0);
   assert(z < model->zSize);
   for (y = 0; y < model->ySize; y++) {
@@ -126,6 +140,7 @@ phymodel_mapatoms_atx(struct phymodel* model,
   unsigned int z;
   unsigned int y;
   
+  debugf("phymodel_mapatoms_atx x=%u", x);
   assert(fn != 0);
   assert(x < model->xSize);
   for (y = 0; y < model->ySize; y++) {
@@ -150,7 +165,8 @@ phymodel_mapatoms_aty(struct phymodel* model,
   
   unsigned int z;
   unsigned int x;
-  
+
+  debugf("phymodel_mapatoms_aty y=%u", y);
   assert(fn != 0);
   assert(y < model->ySize);
   for (x = 0; x < model->xSize; x++) {
@@ -231,10 +247,29 @@ phymodel_read(const char* filename) {
     fatalsu("unable to read file contents and bytes", filename, sz);
     return(0);
   }
+
+  /*
+   * Sanity checks
+   */
   
   if (model->magic != PHYMODEL_MAGIC) {
     fclose(f);
     fatalxx("file does not contain right magic number for a model",model->magic,PHYMODEL_MAGIC);
+    return(0);
+  }
+  
+  size_t expectedSz = phymodel_sizeinbytes(model->xSize,
+					   model->ySize,
+					   model->zSize);
+  debugf("size %ux%ux%u, expecting %u bytes got %u bytes",
+	 model->xSize,
+	 model->ySize,
+	 model->zSize,
+	 sz,
+	 expectedSz);
+  if (expectedSz != sz) {
+    fclose(f);
+    fatalxx("file size and given dimensions do not match",sz,expectedSz);
     return(0);
   }
   
@@ -270,4 +305,22 @@ phymodel_write(struct phymodel* model,
     return;
   }
   fclose(f);
+}
+
+double
+phymodel_distance2d(unsigned int x1,
+		    unsigned int y1,
+		    unsigned int x2,
+		    unsigned int y2) {
+  /*
+   * Calculate the distance between two points in a plane using
+   * trigonometry, i.e., c^2 = a^2 + b^2.
+   */
+  
+  double a = (double)abs(((int)x1)-((int)x2));
+  double b = (double)abs(((int)y1)-((int)y2));
+  double asquared = a*a;
+  double bsquared = b*b;
+  double c = sqrt(asquared + bsquared);
+  return(c);
 }

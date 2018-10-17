@@ -59,6 +59,8 @@ drop-tracer
 
 # Test files
 test-tracer
+debug*txt
+debug*jpg
 test*.jpg
 test*.gif
 test*.mod

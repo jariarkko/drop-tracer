@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <string.h>
 #include "util.h"
 
 int debug = 0;
@@ -100,4 +101,19 @@ subsorzero(unsigned int a,
 	   unsigned int b) {
   if (b <= a) return(a-b);
   else return(0);
+}
+
+int
+stringendswith(const char *string,
+	       const char *suffix)
+{
+  int totallen = strlen(string);
+  int suffixlen = strlen(suffix);
+  
+  if (totallen < suffixlen)
+    return(0);
+  else if (strcmp(string + (totallen-suffixlen), suffix) != 0)
+    return(0);
+  else
+    return(1);
 }

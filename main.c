@@ -14,6 +14,7 @@
 enum drop_tracer_operation {
   drop_tracer_operation_createrock,
   drop_tracer_operation_simulate,
+  drop_tracer_operation_copy,
   drop_tracer_operation_image,
   drop_tracer_operation_model
 };
@@ -33,7 +34,7 @@ static double creationStyleFractalShrink = 0.5;
 static unsigned int creationStyleFractalLevels = 2;
 static unsigned int creationStyleFractalCardinality = 3;
 static enum crackdirection creationStyleDirection = crackdirection_y;
-static int creationStyleCave = 1;
+static int creationStyleCave = 0;
 static unsigned int imageZ = 10;
 static unsigned int imageX = 0;
 static unsigned int imageY = 0;
@@ -59,6 +60,7 @@ static struct option long_options[] = {
   {"no-cave", no_argument,         (int*)&creationStyleCave, 0},
   {"horizontal-crack", no_argument,(int*)&creationStyleDirection, (int)crackdirection_x},
   {"simulate", no_argument,        (int*)&operation, drop_tracer_operation_simulate},
+  {"copy", no_argument,            (int*)&operation, drop_tracer_operation_copy},
   {"image", no_argument,           (int*)&operation, drop_tracer_operation_image},
   {"model", no_argument,           (int*)&operation, drop_tracer_operation_model},
   
@@ -317,7 +319,20 @@ main(int argc,
 				     xSize,
 				     ySize,
 				     zSize);
+    if (debug) {
+      image_modelx2image(model,0,"debug.final2.x.txt");
+      image_modely2image(model,32,"debug.final2.y.txt");
+      image_modelz2image(model,20,"debug.final2.z.txt");
+      image_modely2image(model,0,"debug.final2.jpg");
+    }
+    debugf("now doing the main mod write!");
     phymodel_write(model,outputfile);
+    if (debug) {
+      image_modelx2image(model,0,"debug.final3.x.txt");
+      image_modely2image(model,32,"debug.final3.y.txt");
+      image_modelz2image(model,20,"debug.final3.z.txt");
+      image_modely2image(model,0,"debug.final3.jpg");
+    }
     phymodel_destroy(model);
     break;
 
@@ -345,6 +360,29 @@ main(int argc,
     phymodel_destroy(model);
     break;
     
+  case drop_tracer_operation_copy:
+
+    /*
+     * Copy the model
+     */
+    
+    if (inputfile == 0) {
+      fatal("input file should be specified for --copy");
+    }
+    if (outputfile == 0) {
+      fatal("output file should be specified for --copy");
+    }
+    model = phymodel_read(inputfile);
+    if (model == 0) {
+      fatals("failed to read input model",inputfile);
+    }
+    if (debug) {
+      image_modely2image(model,32,"debug.final5.y.txt");
+    }
+    phymodel_write(model,outputfile);
+    phymodel_destroy(model);
+    break;
+    
   case drop_tracer_operation_image:
 
     /*
@@ -360,6 +398,9 @@ main(int argc,
     model = phymodel_read(inputfile);
     if (model == 0) {
       fatals("failed to read input model",inputfile);
+    }
+    if (debug) {
+      image_modely2image(model,32,"debug.final6.y.txt");
     }
     if (imageX > 0) {
       image_modelx2image(model,
