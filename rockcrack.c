@@ -34,7 +34,9 @@ phymodel_initialize_rock_fractalcrack(struct phymodel* model,
 				      unsigned int fractalCardinality);
 
 struct phymodel*
-phymodel_initialize_rock(enum rockinitialization style,
+phymodel_initialize_rock(unsigned int freeSpaceAboveRock,
+			 unsigned int rockThickness,
+			 enum rockinitialization style,
 			 int uniform,
 			 unsigned int crackWidth,
 			 unsigned int crackGrowthSteps,
@@ -48,8 +50,6 @@ phymodel_initialize_rock(enum rockinitialization style,
 			 unsigned int ySize,
 			 unsigned int zSize) {
   
-  unsigned int freeSpaceAboveRock = zSize > 30 ? 10 : 1;
-  unsigned int rockThickness = zSize > 30 ? 10 : 1;
   unsigned int x;
   unsigned int y;
   unsigned int z;

@@ -79,6 +79,19 @@ phymodel_create_initatom(unsigned int x,
   phyatom_set_color(atom,&black);
 }
 
+phyatom*
+phymodel_getatom(struct phymodel* model,
+		 unsigned int x,
+		 unsigned int y,
+		 unsigned int z) {
+  unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
+  assert(x < model->xSize);
+  assert(y < model->ySize);
+  assert(z < model->zSize);
+  phyatom* atom = &model->atoms[atomIndex];
+  return(atom);
+}
+
 void
 phymodel_mapatoms(struct phymodel* model,
 		  phyatom_fn fn,
@@ -92,8 +105,7 @@ phymodel_mapatoms(struct phymodel* model,
   for (z = 0; z < model->zSize; z++) {
     for (y = 0; y < model->ySize; y++) {
       for (x = 0; x < model->xSize; x++) {
-	unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-	phyatom* atom = &model->atoms[atomIndex];
+	phyatom* atom = phymodel_getatom(model,x,y,z);
 	(*fn)(x,
 	      y,
 	      z,
@@ -119,8 +131,7 @@ phymodel_mapatoms_atz(struct phymodel* model,
   assert(z < model->zSize);
   for (y = 0; y < model->ySize; y++) {
     for (x = 0; x < model->xSize; x++) {
-      unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-      phyatom* atom = &model->atoms[atomIndex];
+      phyatom* atom = phymodel_getatom(model,x,y,z);
       (*fn)(x,
 	    y,
 	    z,
@@ -145,8 +156,7 @@ phymodel_mapatoms_atx(struct phymodel* model,
   assert(x < model->xSize);
   for (y = 0; y < model->ySize; y++) {
     for (z = 0; z < model->zSize; z++) {
-      unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-      phyatom* atom = &model->atoms[atomIndex];
+      phyatom* atom = phymodel_getatom(model,x,y,z);
       (*fn)(x,
 	    y,
 	    z,
@@ -171,8 +181,7 @@ phymodel_mapatoms_aty(struct phymodel* model,
   assert(y < model->ySize);
   for (x = 0; x < model->xSize; x++) {
     for (z = 0; z < model->zSize; z++) {
-      unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
-      phyatom* atom = &model->atoms[atomIndex];
+      phyatom* atom = phymodel_getatom(model,x,y,z);
       (*fn)(x,
 	    y,
 	    z,

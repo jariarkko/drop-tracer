@@ -79,6 +79,11 @@ phymodel_create(unsigned int unit,
 		unsigned int xSize,
 		unsigned int ySize,
 		unsigned int zSize);
+extern phyatom*
+phymodel_getatom(struct phymodel* model,
+		 unsigned int x,
+		 unsigned int y,
+		 unsigned int z);
 extern void
 phymodel_mapatoms(struct phymodel* model,
 		  phyatom_fn fn,

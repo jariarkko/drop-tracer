@@ -16,7 +16,9 @@ enum crackdirection {
 #define crackdirection_is_x(d)    ((d) == crackdirection_x)
 
 extern struct phymodel*
-phymodel_initialize_rock(enum rockinitialization style,
+phymodel_initialize_rock(unsigned int freeSpaceAboveRock,
+			 unsigned int rockThickness,
+			 enum rockinitialization style,
 			 int uniform,
 			 unsigned int crackWidth,
 			 unsigned int crackGrowthSteps,

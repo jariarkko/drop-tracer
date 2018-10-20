@@ -40,7 +40,7 @@ static unsigned int imageX = 0;
 static unsigned int imageY = 0;
 static unsigned int simulRounds = 1000;
 static unsigned int simulDropFrequency = 100;
-static double simulDropSize = 30;
+static unsigned int simulDropSize = 30; /* in atoms */
 
 static struct option long_options[] = {
   
@@ -175,9 +175,9 @@ main(int argc,
 	break;
 	
       case 'P':
-	simulDropSize = atof(optarg);
-	if (simulDropSize <= 0.0) {
-	  fatals("simulator drop size must be a positive floating point number, got",optarg);
+	simulDropSize = atoi(optarg);
+	if (simulDropSize == 0) {
+	  fatals("simulator drop size must be a positive integer, got",optarg);
 	}
 	break;
 	
@@ -306,7 +306,11 @@ main(int argc,
     if (outputfile == 0) {
       fatal("output file should be specified for --create-rock");
     }
-    model = phymodel_initialize_rock(creationStyle,
+    unsigned int freeSpaceAboveRock = zSize > 30 ? 10 : 1;
+    unsigned int rockThickness = zSize > 30 ? 10 : 1;
+    model = phymodel_initialize_rock(freeSpaceAboveRock,
+				     rockThickness,
+				     creationStyle,
 				     creationStyleUniform,
 				     creationStyleCrackWidth,
 				     creationStyleCrackGrowthSteps,
