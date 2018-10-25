@@ -66,6 +66,8 @@ struct phymodel {
 #define phymodel_atomindex(m,x,y,z)	(((z) * (m)->xSize * (m)->ySize) + \
 					 ((y) * (m)->xSize) +		   \
 					 (x))
+#define phymodel_atommat(m,x,y,z)       phyatom_mat(phymodel_getatom((m),(x),(y),(z)))
+#define phymodel_atomisfree(m,x,y,z)    (phyatom_mat(phymodel_getatom((m),(x),(y),(z))) == material_air)
 
 typedef void (*phyatom_fn)(unsigned int x,
 			   unsigned int y,
