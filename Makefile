@@ -107,8 +107,8 @@ runtest:	test-tracer
 		      $(BASETESTSETTINGSLARGE) \
 		      --crack-width 10 --non-uniform --output test5.mod
 	./drop-tracer --image --input test5.mod --output test5.z.jpg
-	./drop-tracer --image --imagey 32 --input test5.mod --output test5.y.jpg
-	./drop-tracer --image --imagex 32 --input test5.mod --output test5.x.jpg
+	./drop-tracer --image --imagey 256 --input test5.mod --output test5.y.jpg
+	./drop-tracer --image --imagex 256 --input test5.mod --output test5.x.jpg
 	./drop-tracer --create-rock --fractal-crack --cave \
 		      $(BASETESTSETTINGSLARGEWIDE) \
 		      --crack-width 10 --non-uniform --output test6.mod
