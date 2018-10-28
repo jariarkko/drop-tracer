@@ -2,6 +2,8 @@
 SOURCE_HEADERS	=	image.h \
 			phymodel.h \
 			rock.h \
+			drop.h \
+			droptable.h \
 			simul.h \
 			util.h
 SOURCE_CODE	=	image.c \
@@ -11,6 +13,8 @@ SOURCE_CODE	=	image.c \
 			rockcave.c \
 			rockcrack.c \
 			rockutil.c \
+			drop.c \
+			droptable.c \
 			simul.c \
 			util.c
 SOURCE_COMPILE	=	Makefile
@@ -23,6 +27,8 @@ LIBOBJECTS	=	image.o \
 			rockcave.o \
 			rockcrack.o \
 			rockutil.o \
+			drop.o \
+			droptable.o \
 			simul.o \
 			util.o
 CMDOBJECTS	=	main.o

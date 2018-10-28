@@ -7,6 +7,8 @@
 #include <string.h>
 #include "util.h"
 #include "phymodel.h"
+#include "drop.h"
+#include "droptable.h"
 #include "simul.h"
 
 static void
@@ -26,13 +28,6 @@ simulator_state_initialize(struct simulatorstate* state,
 static void
 simulator_state_deinitialize(struct simulatorstate* state,
 			     struct phymodel* model);
-static struct simulatordrop*
-simulator_state_getdrop(struct simulatorstate* state);
-static void
-simulator_state_deletedrop(struct simulatorstate* state,
-			   struct simulatordrop* drop);
-static struct simulatordrop*
-simulator_state_findunuseddrop(struct simulatorstate* state);
 static void
 simulator_find_randomdropplaceanddirection(struct simulatorstate* state,
 					   struct phymodel* model,
@@ -76,7 +71,7 @@ simulator_simulate(struct phymodel* model,
   debugf("simulator state size %u, one drop size %u, max %u drops, max %u atoms per drop...",
 	 sizeof(state),
 	 sizeof(struct simulatordrop),
-	 simulatorstate_maxdrops,
+	 simulatordroptable_maxdrops,
 	 simulatorstate_maxatomsperdrop);
 
   unsigned int startingLevel = simulator_find_startinglevel(model);
@@ -103,7 +98,9 @@ simulator_simulate_round(struct simulatorstate* state,
 			    simulDropSize,
 			    startingLevel);
   }
-
+  
+  state->rounds++;
+  
 }
 
 static void
@@ -111,7 +108,7 @@ simulator_simulate_drop(struct simulatorstate* state,
 			struct phymodel* model,
 			unsigned int dropSize,
 			unsigned int startingLevel) {
-  struct simulatordrop* drop = simulator_state_getdrop(state);
+  struct simulatordrop* drop = simulator_droptable_getdrop(&state->drops);
   if (drop == 0) {
     state->failedDropAllocations++;
   } else {
@@ -125,12 +122,12 @@ simulator_simulate_drop(struct simulatorstate* state,
     simulator_find_randomdropplaceanddirection(state,model,&dropplace,&direction,startingLevel);
     if (!simulator_move_dropuntilhole(state,model,&dropplace,direction)) {
       state->failedDropHoleFinding++;
-      simulator_state_deletedrop(state,drop);
+      simulator_droptable_deletedrop(&state->drops,drop);
       return;
     }
     if (!simulator_move_dropintohole(state,model,&dropplace,drop)) {
       state->failedDropHoleFree++;
-      simulator_state_deletedrop(state,drop);
+      simulator_droptable_deletedrop(&state->drops,drop);
       return;
     }
     state->successfullyCreatedDrops++;
@@ -141,57 +138,14 @@ static void
 simulator_state_initialize(struct simulatorstate* state,
 			   struct phymodel* model) {
   memset(state,0,sizeof(*state));
-  state->ndrops = 0;
+  simulator_droptable_initialize(&state->drops);
 }
 
 static void
 simulator_state_deinitialize(struct simulatorstate* state,
 			     struct phymodel* model) {
+  simulator_droptable_initialize(&state->drops);
   memset(state,0xFF,sizeof(*state));
-}
-
-static struct simulatordrop*
-simulator_state_findunuseddrop(struct simulatorstate* state) {
-
-  unsigned int i;
-
-  assert(state->ndrops <= simulatorstate_maxdrops);
-  for (i = 0; i < state->ndrops; i++) {
-    struct simulatordrop* drop = &state->drops[i];
-    if (!drop->active) {
-      drop->active = 1;
-      drop->index = i;
-      return(drop);
-    }
-  }
-
-  return(0);
-}
-
-static struct simulatordrop*
-simulator_state_getdrop(struct simulatorstate* state) {
-  struct simulatordrop* drop = simulator_state_findunuseddrop(state);
-  if (drop != 0) {
-    return(drop);
-  } else if (state->ndrops < simulatorstate_maxdrops) {
-    drop = &state->drops[state->ndrops++];
-    drop->active = 1;
-    drop->index = state->ndrops - 1;
-    assert(state->ndrops <= simulatorstate_maxdrops);
-    return(drop);
-  } else {
-    return(0);
-  }
-}
-
-static void
-simulator_state_deletedrop(struct simulatorstate* state,
-			   struct simulatordrop* drop) {
-  drop->active = 0;
-  while (!drop->active && drop->index == state->ndrops - 1) {
-    state->ndrops--;
-    drop--;
-  }
 }
 
 static void
@@ -565,12 +519,15 @@ static void
 simulator_stats(struct simulatorstate* state,
 		struct phymodel* model) {
 
-  debugf("  successfully created drops:    %8u", state->successfullyCreatedDrops);
-  debugf("  failed drops:                  %8u",
+  debugf("  successfully created drops:    %8llu", state->successfullyCreatedDrops);
+  debugf("  failed drops:                  %8llu",
 	 state->failedDropAllocations + state->failedDropHoleFinding + state->failedDropHoleFree);
-  debugf("    unable to allocate:          %8u", state->failedDropAllocations);
-  debugf("    unable to find a hole:       %8u", state->failedDropHoleFinding);
-  debugf("    found hole not free:         %8u", state->failedDropHoleFree);
+  debugf("    unable to allocate:          %8llu", state->failedDropAllocations);
+  debugf("    unable to find a hole:       %8llu", state->failedDropHoleFinding);
+  debugf("    found hole not free:         %8llu", state->failedDropHoleFree);
+  debugf("    rounds:                      %8llu", state->rounds);
+  debugf("    drop movements:              %8llu", state->dropMovements);
+  debugf("    atom movements:              %8llu", state->atomMovements);
 }
 
 static unsigned int
