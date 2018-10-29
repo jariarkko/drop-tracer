@@ -1,4 +1,29 @@
 
+/*
+ * **************************************************************************
+ * ****************************                     *************************
+ * ***************************  D R O P T R A C E R  ************************
+ * ****************************                     *************************
+ * **************************************************************************
+ * *******      *****    *****  **    *************      ***    ****  *******
+ * ****          ***      ***   **      *********        ***     **      ****
+ * *              *        *    **        *****          **      **         *
+ *                         *     O         ***           **       *
+ *                         o               ***           **       *
+ *                                          *             *
+ *                                          o             *
+ *                                                        o
+ *                                          o
+ *
+ *
+ *                          Cave Forms Simulation Software
+ *                                Jari Arkko, 2018
+ *
+ *                      https://github.com/jariarkko/drop-tracer
+ *                              License: BSD 3-Clause
+ *
+ */
+
 #include <math.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -395,31 +420,6 @@ simulator_spaceforwater(struct simulatorstate* state,
 }
 
 static int
-simulator_coordsequal(struct atomcoordinates* coord1,
-		      struct atomcoordinates* coord2) {
-  return(coord1->x == coord2->x &&
-	 coord1->y == coord2->y &&
-	 coord1->z == coord2->z);
-}
-
-static int
-simulator_onecoordisadjacent(unsigned int a,
-			     unsigned int b) {
-  if (a == b) return(1);
-  if (b > 0 && a == b - 1) return(1);
-  if (a == b + 1) return(1);
-  return(0);
-}
-
-static int
-simulator_coordsadjacent(struct atomcoordinates* coord1,
-			 struct atomcoordinates* coord2) {
-  return(simulator_onecoordisadjacent(coord1->x,coord2->x) &&
-	 simulator_onecoordisadjacent(coord1->y,coord2->y) &&
-	 simulator_onecoordisadjacent(coord1->z,coord2->z));
-}
-
-static int
 simulator_nextatomsareinthisdrop(struct simulatorstate* state,
 				 struct phymodel* model,
 				 struct simulatordrop* drop,
@@ -428,8 +428,8 @@ simulator_nextatomsareinthisdrop(struct simulatorstate* state,
 
   for (i = 0; i < drop->natoms; i++) {
     struct atomcoordinates* coords = &drop->atoms[i];
-    if (simulator_coordsequal(coords,place)) return(1);
-    else if (simulator_coordsadjacent(coords,place)) return(1);
+    if (simulator_coords_equal(coords,place)) return(1);
+    else if (simulator_coords_adjacent(coords,place)) return(1);
   }
   return(0);
 }

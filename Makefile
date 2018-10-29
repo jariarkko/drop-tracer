@@ -1,7 +1,32 @@
+#
+# ##########################################################################
+# ############################                     #########################
+# ###########################  D R O P T R A C E R  ########################
+# ############################                     #########################
+# ##########################################################################
+# #######      #####    #####  ##    #############      ###    ####  #######
+# ####           ###      ###   ##      #########        ###     ##     ####
+# #               #        #    ##        #####          ##      ##        #
+#                          #     O         ###           ##       #
+#                          o               ###           ##       #
+#                                           #             #
+#                                           o             #
+#                                                         o
+#                                           o
+#
+#
+#                          Cave Forms Simulation Software
+#                                Jari Arkko, 2018
+#
+#                      https://github.com/jariarkko/drop-tracer
+#                              License: BSD 3-Clause
+#
+#
 
 SOURCE_HEADERS	=	image.h \
 			phymodel.h \
 			rock.h \
+			coords.h \
 			drop.h \
 			droptable.h \
 			simul.h \
@@ -13,6 +38,7 @@ SOURCE_CODE	=	image.c \
 			rockcave.c \
 			rockcrack.c \
 			rockutil.c \
+			coords.c \
 			drop.c \
 			droptable.c \
 			simul.c \
@@ -27,6 +53,7 @@ LIBOBJECTS	=	image.o \
 			rockcave.o \
 			rockcrack.o \
 			rockutil.o \
+			coords.o \
 			drop.o \
 			droptable.o \
 			simul.o \
