@@ -46,6 +46,7 @@ extern void
 simulator_simulate(struct phymodel* model,
 		   unsigned int simulRounds,
 		   unsigned int simulDropFrequency,
-		   unsigned int simulDropSize);
+		   unsigned int simulDropSize,
+		   int simulTextualSnapshot);
 
 #endif /* SIMUL_H */

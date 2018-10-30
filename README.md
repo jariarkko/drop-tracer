@@ -81,6 +81,10 @@ And options is one of:
     --drop-frequency      How many simulation rounds there are between drops of water
     --drop-size           Sets the radius of a drop of water in mm (in floating point
                           form, for instance as in "--drop-size 0.1")
+    --textual-snapshot    On all simulation rounds, produce an animated ASCII art
+                          picture of the current model. Only allowed on resolutions
+			  less than 150 pixels across.
+    --no-textual-snapshot No animation during simulation
 
                           
     Options used with --image:

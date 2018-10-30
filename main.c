@@ -65,6 +65,8 @@ static unsigned int imageY = 0;
 static unsigned int simulRounds = 1000;
 static unsigned int simulDropFrequency = 100;
 static unsigned int simulDropSize = 30; /* in atoms */
+static int simulTextualSnapshot = 0;
+static const unsigned int maxTextualSnapshotDimension = 150;
 
 static struct option long_options[] = {
   
@@ -72,21 +74,23 @@ static struct option long_options[] = {
    * These options set a fixed flag or mode, and do not need extra parsing or parameters.
    */
   
-  {"debug", no_argument,           &debug, 1},
-  {"no-debug", no_argument,        &debug, 0},
-  {"create-rock", no_argument,     (int*)&operation, drop_tracer_operation_createrock},
-  {"simple-crack", no_argument,    (int*)&creationStyle, rockinitialization_simplecrack},
-  {"fractal-crack", no_argument,   (int*)&creationStyle, rockinitialization_fractalcrack},
-  {"uniform", no_argument,         (int*)&creationStyleUniform, 1},
-  {"non-uniform", no_argument,     (int*)&creationStyleUniform, 0},
-  {"vertical-crack", no_argument,  (int*)&creationStyleDirection, (int)crackdirection_y},
-  {"cave", no_argument,            (int*)&creationStyleCave, 1},
-  {"no-cave", no_argument,         (int*)&creationStyleCave, 0},
-  {"horizontal-crack", no_argument,(int*)&creationStyleDirection, (int)crackdirection_x},
-  {"simulate", no_argument,        (int*)&operation, drop_tracer_operation_simulate},
-  {"copy", no_argument,            (int*)&operation, drop_tracer_operation_copy},
-  {"image", no_argument,           (int*)&operation, drop_tracer_operation_image},
-  {"model", no_argument,           (int*)&operation, drop_tracer_operation_model},
+  {"debug", no_argument,               &debug, 1},
+  {"no-debug", no_argument,            &debug, 0},
+  {"create-rock", no_argument,         (int*)&operation, drop_tracer_operation_createrock},
+  {"simple-crack", no_argument,        (int*)&creationStyle, rockinitialization_simplecrack},
+  {"fractal-crack", no_argument,       (int*)&creationStyle, rockinitialization_fractalcrack},
+  {"uniform", no_argument,             (int*)&creationStyleUniform, 1},
+  {"non-uniform", no_argument,         (int*)&creationStyleUniform, 0},
+  {"vertical-crack", no_argument,      (int*)&creationStyleDirection, (int)crackdirection_y},
+  {"cave", no_argument,                (int*)&creationStyleCave, 1},
+  {"no-cave", no_argument,             (int*)&creationStyleCave, 0},
+  {"horizontal-crack", no_argument,    (int*)&creationStyleDirection, (int)crackdirection_x},
+  {"simulate", no_argument,            (int*)&operation, drop_tracer_operation_simulate},
+  {"copy", no_argument,                (int*)&operation, drop_tracer_operation_copy},
+  {"image", no_argument,               (int*)&operation, drop_tracer_operation_image},
+  {"model", no_argument,               (int*)&operation, drop_tracer_operation_model},
+  {"textual-snapshot", no_argument,    (int*)&simulTextualSnapshot, 1},
+  {"no-textual-snapshot", no_argument, (int*)&simulTextualSnapshot, 0},
   
   /*
    * These options need an argument
@@ -368,10 +372,17 @@ main(int argc,
     if (model == 0) {
       fatals("failed to read input model",inputfile);
     }
+    if (model->xSize > maxTextualSnapshotDimension ||
+	model->ySize > maxTextualSnapshotDimension ||
+	model->zSize > maxTextualSnapshotDimension) {
+      fatalu("cannot use --textual-snapshot for models larger than a limit in any dimension",
+	     maxTextualSnapshotDimension);
+    }
     simulator_simulate(model,
 		       simulRounds,
 		       simulDropFrequency,
-		       simulDropSize);
+		       simulDropSize,
+		       simulTextualSnapshot);
     phymodel_write(model,outputfile);
     phymodel_destroy(model);
     break;

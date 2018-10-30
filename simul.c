@@ -35,6 +35,7 @@
 #include "drop.h"
 #include "droptable.h"
 #include "simul.h"
+#include "image.h"
 
 static void
 simulator_simulate_round(struct simulatorstate* state,
@@ -79,12 +80,15 @@ simulator_stats(struct simulatorstate* state,
 		struct phymodel* model);
 static unsigned int
 simulator_find_startinglevel(struct phymodel* model);
+static void
+simulator_snapshot(struct phymodel* model);
 
 void
 simulator_simulate(struct phymodel* model,
 		   unsigned int simulRounds,
 		   unsigned int simulDropFrequency,
-		   unsigned int simulDropSize) {
+		   unsigned int simulDropSize,
+		   int simulTextualSnapshot) {
 
   struct simulatorstate state;
   unsigned int round;
@@ -98,10 +102,17 @@ simulator_simulate(struct phymodel* model,
 	 simulatorstate_maxatomsperdrop);
 
   unsigned int startingLevel = simulator_find_startinglevel(model);
-
+  
+  if (simulTextualSnapshot) {
+    simulator_snapshot(model);
+  }
+  
   for (round = 0; round < simulRounds; round++) {
     int drop = ((round % simulDropFrequency) == 0);
     simulator_simulate_round(&state,model,simulDropSize,startingLevel,drop);
+    if (simulTextualSnapshot) {
+      simulator_snapshot(model);
+    }
   }
 
   debugf("simulation complete");
@@ -336,4 +347,22 @@ simulator_find_startinglevel(struct phymodel* model) {
   }
   fatal("cannot find rock starting level from the top");
   return(0);
+}
+
+static void
+simulator_snapshot(struct phymodel* model) {
+  
+  const char* tempfile = "/tmp/snapshot.txt";
+  printf("\f");
+  fflush(stdout);
+  image_modely2image(model,
+		     model->ySize / 2,
+		     tempfile);
+  FILE* f = fopen(tempfile,"r");
+  if (f == 0) fatals("cannot open temporary file",tempfile);
+  int c;
+  while ((c = fgetc(f)) != EOF) {
+    printf("%c",c);
+  }
+  fclose(f);
 }

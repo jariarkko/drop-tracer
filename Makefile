@@ -109,7 +109,7 @@ test-tracer:	$(LIBOBJECTS) \
 	$(CC) -o test-tracer $(TESTOBJECTS) $(LIBOBJECTS) $(LDFLAGS_IMG) -lm
 
 BASETESTSETTINGS	=	--xsize 64 --ysize 64 --zsize 64
-BASETESTSETTINGSSIMULATOR=	--xsize 64 --ysize 10 --zsize 64
+BASETESTSETTINGSSIMULATOR=	--xsize 32 --ysize 10 --zsize 32
 BASETESTSETTINGSLARGE	=	--xsize 512 --ysize 512 --zsize 512
 BASETESTSETTINGSLARGEWIDE=	--xsize 1024 --ysize 512 --zsize 512
 
