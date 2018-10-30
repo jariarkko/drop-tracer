@@ -65,6 +65,11 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
 			     struct atomcoordinates* place,
 			     enum direction direction);
 static int
+simulator_move_dropuntilholeandchangedirection(struct simulatorstate* state,
+					       struct phymodel* model,
+					       struct atomcoordinates* place,
+					       enum direction direction);
+static int
 simulator_move_dropintohole(struct simulatorstate* state,
 			    struct phymodel* model,
 			    struct atomcoordinates* place,
@@ -138,7 +143,7 @@ simulator_simulate_drop(struct simulatorstate* state,
     rgb_set_white(&drop->calcitecolor);
     drop->natoms = dropSize;
     simulator_find_randomdropplaceanddirection(state,model,&dropplace,&direction,startingLevel);
-    if (!simulator_move_dropuntilhole(state,model,&dropplace,direction)) {
+    if (!simulator_move_dropuntilholeandchangedirection(state,model,&dropplace,direction)) {
       state->failedDropHoleFinding++;
       simulator_droptable_deletedrop(&state->drops,drop);
       return;
@@ -179,6 +184,34 @@ simulator_find_randomdropplaceanddirection(struct simulatorstate* state,
 }
 
 static int
+simulator_move_dropuntilholeandchangedirection(struct simulatorstate* state,
+					       struct phymodel* model,
+					       struct atomcoordinates* place,
+					       enum direction direction) {
+  
+  if (simulator_move_dropuntilhole(state,model,place,direction)) {
+    
+    return(1);
+    
+  } else {
+    
+    enum direction anotherdirection;
+    
+    for (anotherdirection = (direction + 1) % direction_howmany;
+	 anotherdirection != direction;
+	 anotherdirection = (anotherdirection + 1) & direction_howmany) {
+
+      debugf("trying another direction...");
+      if (simulator_move_dropuntilhole(state,model,place,anotherdirection)) return(1);
+      
+    }
+    
+    return(0);
+    
+  }
+}
+
+static int
 simulator_move_dropuntilhole(struct simulatorstate* state,
 			     struct phymodel* model,
 			     struct atomcoordinates* place,
@@ -188,6 +221,7 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
 
   case direction_x_towards0:
     while (1) {
+      debugf("hole search x_towards0 (%u,%u,%u)", place->x, place->y, place->z);
       if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
       else if (place->x == 0) return(0);
       else place->x--;
@@ -195,6 +229,7 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
 
   case direction_x_towardsn:
     while (1) {
+      debugf("hole search x_towardsn (%u,%u,%u)", place->x, place->y, place->z);
       if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
       else if (place->x == model->xSize - 1) return(0);
       else place->x++;
@@ -202,6 +237,7 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
 
   case direction_y_towards0:
     while (1) {
+      debugf("hole search y_towards0 (%u,%u,%u)", place->x, place->y, place->z);
       if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
       else if (place->y == 0) return(0);
       else place->y--;
@@ -209,6 +245,7 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
 
   case direction_y_towardsn:
     while (1) {
+      debugf("hole search y_towardsn (%u,%u,%u)", place->x, place->y, place->z);
       if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
       else if (place->y == model->ySize - 1) return(0);
       else place->y++;
@@ -216,6 +253,7 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
 
   case direction_z_towards0:
     while (1) {
+      debugf("hole search z_towards0 (%u,%u,%u)", place->x, place->y, place->z);
       if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
       else if (place->z == 0) return(0);
       else place->z--;
@@ -223,6 +261,7 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
 
   case direction_z_towardsn:
     while (1) {
+      debugf("hole search z_towardsn (%u,%u,%u)", place->x, place->y, place->z);
       if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
       else if (place->y == model->ySize - 1) return(0);
       else place->y++;
@@ -240,14 +279,26 @@ simulator_move_dropintohole(struct simulatorstate* state,
 			    struct phymodel* model,
 			    struct atomcoordinates* place,
 			    struct simulatordrop* drop) {
+
+  debugf("trying to place a drop into hole at (%u,%u,%u)", place->x, place->y, place->z);
   
   if (!simulator_drop_enoughspaceforwater(model,place,drop->size)) {
-    
+
+    debugf("not enough space");
     return(0);
     
   } else {
     
-    return(simulator_drop_putdrop(model,place,drop));
+    if (simulator_drop_putdrop(model,place,drop)) {
+      
+      state->atomCreations += drop->natoms;
+      return(1);
+      
+    } else {
+      
+      return(0);
+      
+    }
     
   }
   
@@ -265,6 +316,7 @@ simulator_stats(struct simulatorstate* state,
   debugf("    found hole not free:         %8llu", state->failedDropHoleFree);
   debugf("    rounds:                      %8llu", state->rounds);
   debugf("    drop movements:              %8llu", state->dropMovements);
+  debugf("    atom creations:              %8llu", state->atomCreations);
   debugf("    atom movements:              %8llu", state->atomMovements);
 }
 

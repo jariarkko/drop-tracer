@@ -37,6 +37,7 @@ struct simulatorstate {
   unsigned long long failedDropHoleFree;
   unsigned long long rounds;
   unsigned long long dropMovements;
+  unsigned long long atomCreations;
   unsigned long long atomMovements;
   struct simulatordroptable drops;
 };

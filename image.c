@@ -172,7 +172,7 @@ image_modelgen2image(struct phymodel* model,
     
     MagickCoreGenesis("drop-tracer",MagickTrue);
     exception=AcquireExceptionInfo();
-  
+    
     /*
      * Set the properties of the image as desired,
      * i.e., the right filename
@@ -216,8 +216,8 @@ image_modelgen2image(struct phymodel* model,
      * Create the ImageMagick image object
      */
     
-    image = ConstituteImage(model->xSize,
-			    model->ySize,
+    image = ConstituteImage(coord1size,
+			    coord2size,
 			    "RGB",
 			    CharPixel,
 			    pixels,

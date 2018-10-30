@@ -257,6 +257,10 @@ simulator_remove_dropatoms(struct phymodel* model,
   }
 }
 
+struct circledrawingcontext {
+  struct simulatordrop* drop;
+};
+
 static void
 simulator_putdrop_circledistance_onecircle(unsigned int x,
 					   unsigned int y,
@@ -264,7 +268,38 @@ simulator_putdrop_circledistance_onecircle(unsigned int x,
 					   struct phymodel* model,
 					   phyatom* atom,
 					   void* data) {
+  struct circledrawingcontext* context = (struct circledrawingcontext*)data;
+
+  /*
+   * Some sanity checks
+   */
   
+  assert(context != 0);
+  struct simulatordrop* drop = context->drop;
+  assert(drop != 0);
+  assert(drop->size > 0);
+  
+  /*
+   * Check if we still need to add water atoms
+   */
+
+  if (drop->natoms >= drop->size) return;
+
+  /*
+   * We do. Add a water atom to the indicated (x,y,z) location.
+   */
+  
+  debugf("adding water atom at (%u,%u,%u) to drop (%u/%u)",
+	 x, y, z,
+	 drop->natoms,
+	 drop->size);
+  
+  phyatom_set_mat(atom,material_water);
+  struct atomcoordinates coords;
+  coords.x = x;
+  coords.y = y;
+  coords.z = z;
+  simulator_drop_addatom(model,drop,&coords);
 }
 
 static int
@@ -294,12 +329,14 @@ simulator_putdrop_circledistance(struct phymodel* model,
      * atom slot in the model that is that distance away from the drop place
      * (in 3D; if in free space, the water drop will form a sphere).
      */
-    
+
+    struct circledrawingcontext context;
+    context.drop = drop;
     phymodel_mapatoms_atdistance3d(model,
 				   place->x,place->y,place->z,
 				   distance,
 				   simulator_putdrop_circledistance_onecircle,
-				   model);
+				   &context);
     
     /*
      * Done
@@ -317,6 +354,9 @@ simulator_drop_putdrop(struct phymodel* model,
 		       struct simulatordrop* drop) {
   unsigned int distance = 0;
   assert(drop->size <= simulatorstate_maxatomsperdrop);
+  
+  debugf("putting a drop of size %u at (%u,%u,%u)", drop->size, place->x, place->y, place->z);
+  
   while (drop->natoms < drop->size) {
     if (!simulator_putdrop_circledistance(model,place,drop,distance)) {
       if (drop->natoms < drop->size) return(0);

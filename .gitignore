@@ -65,6 +65,7 @@ test*.jpg
 test*.gif
 test*.mod
 test*.tmp
+test[0-9]*txt
 
 # Apple files
 .DS_Store
