@@ -60,8 +60,10 @@ simulator_droptable_getdrop(struct simulatordroptable* state) {
     return(drop);
   } else if (state->ndrops < simulatordroptable_maxdrops) {
     drop = &state->drops[state->ndrops++];
+    memset(drop,0,sizeof(*drop));
     drop->active = 1;
     drop->index = state->ndrops - 1;
+    drop->natoms = 0;
     assert(state->ndrops <= simulatordroptable_maxdrops);
     return(drop);
   } else {

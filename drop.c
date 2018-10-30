@@ -307,6 +307,10 @@ simulator_putdrop_circledistance(struct phymodel* model,
 				 struct atomcoordinates* place,
 				 struct simulatordrop* drop,
 				 unsigned int distance) {
+
+  debugf("simulator_putdrop_circledistance (%u,%u,%u) distance %u",
+	 place->x, place->y, place->z,
+	 distance);
   
   if (distance == 0) {
     
@@ -356,8 +360,10 @@ simulator_drop_putdrop(struct phymodel* model,
   assert(drop->size <= simulatorstate_maxatomsperdrop);
   
   debugf("putting a drop of size %u at (%u,%u,%u)", drop->size, place->x, place->y, place->z);
+  debugf("initial natoms = %u", drop->natoms);
   
   while (drop->natoms < drop->size) {
+    debugf("drop circle round %u", distance);
     if (!simulator_putdrop_circledistance(model,place,drop,distance)) {
       if (drop->natoms < drop->size) return(0);
     }

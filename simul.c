@@ -141,7 +141,6 @@ simulator_simulate_drop(struct simulatorstate* state,
     drop->size = dropSize;
     drop->calcite = 1.0;
     rgb_set_white(&drop->calcitecolor);
-    drop->natoms = dropSize;
     simulator_find_randomdropplaceanddirection(state,model,&dropplace,&direction,startingLevel);
     if (!simulator_move_dropuntilholeandchangedirection(state,model,&dropplace,direction)) {
       state->failedDropHoleFinding++;
