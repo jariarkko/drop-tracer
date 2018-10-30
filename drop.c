@@ -73,6 +73,8 @@ simulator_drop_enoughspaceforwater(struct phymodel* model,
 				   struct atomcoordinates* place,
 				   unsigned int dropSize) {
 
+  assert(phymodel_isvalid(model));
+  
   unsigned int z = place->z;
   unsigned int y = place->y;
 
@@ -224,6 +226,8 @@ simulator_drop_nextatomsareinthisdrop(struct phymodel* model,
 				      struct atomcoordinates* place) {
   unsigned int i;
 
+  assert(phymodel_isvalid(model));
+  
   for (i = 0; i < drop->natoms; i++) {
     struct atomcoordinates* coords = &drop->atoms[i];
     if (simulator_coords_equal(coords,place)) return(1);
@@ -237,6 +241,7 @@ simulator_drop_addatom(struct phymodel* model,
 		       struct simulatordrop* drop,
 		       struct atomcoordinates* place) {
   struct atomcoordinates* coords;
+  assert(phymodel_isvalid(model));
   assert(drop->natoms < simulatorstate_maxatomsperdrop);
   coords = &drop->atoms[drop->natoms++];
   coords->x = place->x;
@@ -249,6 +254,8 @@ static void
 simulator_remove_dropatoms(struct phymodel* model,
 			   struct simulatordrop* drop) {
 
+  assert(phymodel_isvalid(model));
+  
   while (drop->natoms > 0) {
     struct atomcoordinates* coords = &drop->atoms[drop->natoms - 1];
     phyatom* atom = phymodel_getatom(model,coords->x,coords->y,coords->z);
@@ -273,7 +280,10 @@ simulator_putdrop_circledistance_onecircle(unsigned int x,
   /*
    * Some sanity checks
    */
-  
+
+  assert(model != 0);
+  assert(phymodel_isvalid(model));
+  assert(atom != 0);
   assert(context != 0);
   struct simulatordrop* drop = context->drop;
   assert(drop != 0);
@@ -282,11 +292,17 @@ simulator_putdrop_circledistance_onecircle(unsigned int x,
   /*
    * Check if we still need to add water atoms
    */
-
+  
   if (drop->natoms >= drop->size) return;
 
   /*
-   * We do. Add a water atom to the indicated (x,y,z) location.
+   * We do. Check if there's just air there, or something else.
+   */
+
+  if (phyatom_mat(atom) != material_air) return;
+  
+  /*
+   * Nothing there. Add a water atom to the indicated (x,y,z) location.
    */
   
   debugf("adding water atom at (%u,%u,%u) to drop (%u/%u)",
@@ -307,6 +323,8 @@ simulator_putdrop_circledistance(struct phymodel* model,
 				 struct atomcoordinates* place,
 				 struct simulatordrop* drop,
 				 unsigned int distance) {
+
+  assert(phymodel_isvalid(model));
 
   debugf("simulator_putdrop_circledistance (%u,%u,%u) distance %u",
 	 place->x, place->y, place->z,
@@ -357,6 +375,7 @@ simulator_drop_putdrop(struct phymodel* model,
 		       struct atomcoordinates* place,
 		       struct simulatordrop* drop) {
   unsigned int distance = 0;
+  assert(phymodel_isvalid(model));
   assert(drop->size <= simulatorstate_maxatomsperdrop);
   
   debugf("putting a drop of size %u at (%u,%u,%u)", drop->size, place->x, place->y, place->z);

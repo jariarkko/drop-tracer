@@ -85,6 +85,8 @@ phymodel_create(unsigned int unit,
   
   phymodel_mapatoms(model,phymodel_create_initatom,0);
   
+  assert(phymodel_isvalid(model));
+  
   return(model);
 }
 
@@ -96,6 +98,7 @@ phymodel_create_initatom(unsigned int x,
 			 phyatom* atom,
 			 void* data) {
   struct rgb black;
+  assert(phymodel_isvalid(model));
   rgb_set_black(&black);
 
   phyatom_reset(atom);
@@ -108,12 +111,15 @@ phymodel_getatom(struct phymodel* model,
 		 unsigned int x,
 		 unsigned int y,
 		 unsigned int z) {
+  
+  assert(phymodel_isvalid(model));
   unsigned int atomIndex = phymodel_atomindex(model,x,y,z);
   assert(x < model->xSize);
   assert(y < model->ySize);
   assert(z < model->zSize);
   phyatom* atom = &model->atoms[atomIndex];
   return(atom);
+  
 }
 
 void
@@ -125,7 +131,9 @@ phymodel_mapatoms(struct phymodel* model,
   unsigned int y;
   unsigned int z;
   
+  assert(phymodel_isvalid(model));
   assert(fn != 0);
+  
   for (z = 0; z < model->zSize; z++) {
     for (y = 0; y < model->ySize; y++) {
       for (x = 0; x < model->xSize; x++) {
@@ -150,6 +158,7 @@ phymodel_mapatoms_atz(struct phymodel* model,
   unsigned int x;
   unsigned int y;
   
+  assert(phymodel_isvalid(model));
   debugf("phymodel_mapatoms_atz z=%u", z);
   assert(fn != 0);
   assert(z < model->zSize);
@@ -175,6 +184,7 @@ phymodel_mapatoms_atx(struct phymodel* model,
   unsigned int z;
   unsigned int y;
   
+  assert(phymodel_isvalid(model));
   debugf("phymodel_mapatoms_atx x=%u", x);
   assert(fn != 0);
   assert(x < model->xSize);
@@ -201,6 +211,7 @@ phymodel_mapatoms_aty(struct phymodel* model,
   unsigned int x;
 
   debugf("phymodel_mapatoms_aty y=%u", y);
+  assert(phymodel_isvalid(model));
   assert(fn != 0);
   assert(y < model->ySize);
   for (x = 0; x < model->xSize; x++) {
@@ -218,7 +229,7 @@ phymodel_mapatoms_aty(struct phymodel* model,
 
 void
 phymodel_destroy(struct phymodel* model) {
-  assert(model->magic == PHYMODEL_MAGIC);
+  assert(phymodel_isvalid(model));
   model->magic = 0;
   free(model);
 }
@@ -311,6 +322,7 @@ phymodel_read(const char* filename) {
    */
   
   fclose(f);
+  assert(phymodel_isvalid(model));
   return(model);
 }
 
@@ -321,6 +333,7 @@ phymodel_write(struct phymodel* model,
   unsigned int size;
   size_t ret;
   
+  assert(phymodel_isvalid(model));
   if (f == 0) {
     fatals("failed to open file", filename);
     return;
@@ -403,6 +416,8 @@ phymodel_mapatoms_atdistance2dx(struct phymodel* model,
 				void* data) {
   unsigned int z;
   
+  assert(phymodel_isvalid(model));
+
   for (z = origoz > distance ? origoz - distance : 0;
        z < model->zSize && z <= origoz + distance;
        z++) {
@@ -437,6 +452,8 @@ phymodel_mapatoms_atdistance2dy(struct phymodel* model,
 				void* data) {
   unsigned int x;
   
+  assert(phymodel_isvalid(model));
+
   for (x = origox > distance ? origox - distance : 0;
        x < model->xSize && x <= origox + distance;
        x++) {
@@ -471,6 +488,8 @@ phymodel_mapatoms_atdistance2dz(struct phymodel* model,
 				void* data) {
   unsigned int x;
   
+  assert(phymodel_isvalid(model));
+
   for (x = origox > distance ? origox - distance : 0;
        x < model->xSize && x <= origox + distance;
        x++) {
@@ -505,6 +524,8 @@ phymodel_mapatoms_atdistance3d(struct phymodel* model,
 			       void* data) {
   unsigned int x;
   
+  assert(phymodel_isvalid(model));
+
   for (x = origox > distance ? origox - distance : 0;
        x < model->xSize && x <= origox + distance;
        x++) {

@@ -87,6 +87,7 @@ struct phymodel {
 };
 
 #define phymodel_sizeinbytes(x,y,z)	(sizeof(struct phymodel) + ((x)*(y)*(z)-1) * sizeof(phyatom))
+#define phymodel_isvalid(m)		((m) != 0 && (m)->magic == PHYMODEL_MAGIC)
 #define phymodel_atomindex(m,x,y,z)	(((z) * (m)->xSize * (m)->ySize) + \
 					 ((y) * (m)->xSize) +		   \
 					 (x))
