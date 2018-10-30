@@ -357,3 +357,182 @@ phymodel_distance2d(unsigned int x1,
   double c = sqrt(asquared + bsquared);
   return(c);
 }
+
+double
+phymodel_distance3d(unsigned int x1,
+		    unsigned int y1,
+		    unsigned int z1,
+		    unsigned int x2,
+		    unsigned int y2,
+		    unsigned int z2) {
+
+  /*
+   * First, calculate the distance in the triangle
+   * only on the x-y plane. This distance is the
+   * hypothenus of the triangle.
+   */
+
+  double xydistance = phymodel_distance2d(x1,y1,x2,y2);
+
+  /*
+   * Then, calculate the distance (call it c) in the triangle between
+   * the hypothenus in x-y plane calculated above (call it a) and the
+   * z-direction travel (call it b).
+   */
+  
+  double a = xydistance;
+  double b = (double)abs(((int)z1)-((int)z2));
+  double asquared = a*a;
+  double bsquared = b*b;
+  double c = sqrt(asquared + bsquared);
+
+  /*
+   * Done
+   */
+  
+  return(c);
+}
+
+void
+phymodel_mapatoms_atdistance2dx(struct phymodel* model,
+				unsigned int x,
+				unsigned int origoy,
+				unsigned int origoz,
+				unsigned int distance,
+				phyatom_fn fn,
+				void* data) {
+  unsigned int z;
+  
+  for (z = origoz > distance ? origoz - distance : 0;
+       z < model->zSize && z <= origoz + distance;
+       z++) {
+    
+    unsigned int y;
+    
+    for (y = origoy > distance ? origoy - distance : 0;
+	 y < model->ySize && y <= origoy + distance;
+	 y++) {
+      
+      double zydistancefloat = phymodel_distance2d(z,y,origoz,origoy);
+      unsigned int zydistance = (unsigned int)floor(zydistancefloat);
+      debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
+	     z,y,origoz,origoy,zydistancefloat,zydistance);
+      if (zydistance == distance) {
+	phyatom* atom = phymodel_getatom(model,x,y,z);
+	(*fn)(x,y,z,model,atom,data);
+      }
+      
+    }
+    
+  }
+}
+
+void
+phymodel_mapatoms_atdistance2dy(struct phymodel* model,
+				unsigned int origox,
+				unsigned int y,
+				unsigned int origoz,
+				unsigned int distance,
+				phyatom_fn fn,
+				void* data) {
+  unsigned int x;
+  
+  for (x = origox > distance ? origox - distance : 0;
+       x < model->xSize && x <= origox + distance;
+       x++) {
+    
+    unsigned int z;
+    
+    for (z = origoz > distance ? origoz - distance : 0;
+	 z < model->zSize && z <= origoz + distance;
+	 z++) {
+      
+      double zxdistancefloat = phymodel_distance2d(z,x,origoz,origox);
+      unsigned int zxdistance = (unsigned int)floor(zxdistancefloat);
+      debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
+	     z,y,origox,origoz,zxdistancefloat,zxdistance);
+      if (zxdistance == distance) {
+	phyatom* atom = phymodel_getatom(model,x,y,z);
+	(*fn)(x,y,z,model,atom,data);
+      }
+      
+    }
+    
+  }
+}
+
+void
+phymodel_mapatoms_atdistance2dz(struct phymodel* model,
+				unsigned int origox,
+				unsigned int origoy,
+				unsigned int z,
+				unsigned int distance,
+				phyatom_fn fn,
+				void* data) {
+  unsigned int x;
+  
+  for (x = origox > distance ? origox - distance : 0;
+       x < model->xSize && x <= origox + distance;
+       x++) {
+    
+    unsigned int y;
+    
+    for (y = origoy > distance ? origoy - distance : 0;
+	 y < model->ySize && y <= origoy + distance;
+	 y++) {
+
+      double xydistancefloat = phymodel_distance2d(x,y,origox,origoy);
+      unsigned int xydistance = (unsigned int)floor(xydistancefloat);
+      debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
+	     x,y,origox,origoy,xydistancefloat,xydistance);
+      if (xydistance == distance) {
+	phyatom* atom = phymodel_getatom(model,x,y,z);
+	(*fn)(x,y,z,model,atom,data);
+      }
+      
+    }
+    
+  }
+}
+
+void
+phymodel_mapatoms_atdistance3d(struct phymodel* model,
+			       unsigned int origox,
+			       unsigned int origoy,
+			       unsigned int origoz,
+			       unsigned int distance,
+			       phyatom_fn fn,
+			       void* data) {
+  unsigned int x;
+  
+  for (x = origox > distance ? origox - distance : 0;
+       x < model->xSize && x <= origox + distance;
+       x++) {
+    
+    unsigned int y;
+    
+    for (y = origoy > distance ? origoy - distance : 0;
+	 y < model->ySize && y <= origoy + distance;
+	 y++) {
+
+      unsigned int z;
+      
+      for (z = origoz > distance ? origoz - distance : 0;
+	   z < model->zSize && z <= origoz + distance;
+	   z++) {
+	
+	double xyzdistancefloat = phymodel_distance3d(x,y,z,origox,origoy,origoz);
+	unsigned int xyzdistance = (unsigned int)floor(xyzdistancefloat);
+	debugf("(%u,%u,%u) to (%u,%u,%u) distance is %.2f (%u)",
+	       x,y,z,origox,origoy,origoz,xyzdistancefloat,xyzdistance);
+	if (xyzdistance == distance) {
+	  phyatom* atom = phymodel_getatom(model,x,y,z);
+	  (*fn)(x,y,z,model,atom,data);
+	}
+	
+      }
+      
+    }
+    
+  }
+}

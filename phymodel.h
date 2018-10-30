@@ -130,6 +130,38 @@ phymodel_mapatoms_aty(struct phymodel* model,
 		      phyatom_fn fn,
 		      void* data);
 extern void
+phymodel_mapatoms_atdistance2dx(struct phymodel* model,
+				unsigned int x,
+				unsigned int origoy,
+				unsigned int origoz,
+				unsigned int distance,
+				phyatom_fn fn,
+				void* data);
+extern void
+phymodel_mapatoms_atdistance2dy(struct phymodel* model,
+				unsigned int origox,
+				unsigned int y,
+				unsigned int origoz,
+				unsigned int distance,
+				phyatom_fn fn,
+				void* data);
+extern void
+phymodel_mapatoms_atdistance2dz(struct phymodel* model,
+				unsigned int origox,
+				unsigned int origoy,
+				unsigned int z,
+				unsigned int distance,
+				phyatom_fn fn,
+				void* data);
+extern void
+phymodel_mapatoms_atdistance3d(struct phymodel* model,
+			       unsigned int origox,
+			       unsigned int origoy,
+			       unsigned int origoz,
+			       unsigned int distance,
+			       phyatom_fn fn,
+			       void* data);
+extern void
 rgb_set(struct rgb* rgb,
 	unsigned char r,
 	unsigned char g,
@@ -160,4 +192,11 @@ phymodel_distance2d(unsigned int x1,
 		    unsigned int y1,
 		    unsigned int x2,
 		    unsigned int y2);
+extern double
+phymodel_distance3d(unsigned int x1,
+		    unsigned int y1,
+		    unsigned int z1,
+		    unsigned int x2,
+		    unsigned int y2,
+		    unsigned int z2);
 #endif /* PHYMODEL_H */

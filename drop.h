@@ -52,4 +52,13 @@ struct simulatordrop {
     atoms[simulatorstate_maxatomsperdrop]; /* which atoms are included in the drop */
 };
 
+int
+simulator_drop_enoughspaceforwater(struct phymodel* model,
+				   struct atomcoordinates* place,
+				   unsigned int dropSize);
+int
+simulator_drop_putdrop(struct phymodel* model,
+		       struct atomcoordinates* place,
+		       struct simulatordrop* drop);
+
 #endif /* DROP_H */

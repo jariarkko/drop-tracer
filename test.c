@@ -33,9 +33,11 @@
 #include "util.h"
 #include "phymodel.h"
 #include "image.h"
+#include "coords.h"
 
 static void atomtests(void);
 static void phymodeltests(void);
+static void circlemaptests(void);
 
 int
 main(int argc,
@@ -43,6 +45,7 @@ main(int argc,
   if (argc > 1) debug = 1;
   atomtests();
   phymodeltests();
+  circlemaptests();
   exit(0);
 }
 
@@ -101,10 +104,95 @@ static void
 phymodeltests(void) {
   double dist;
 
+  /*
+   * 2D
+   */
+  
   dist = phymodel_distance2d(0,0,0,0);
   assert(approxcompare(0.0,0.001,dist));
   dist = phymodel_distance2d(1,0,0,0);
   assert(approxcompare(1.0,0.001,dist));
   dist = phymodel_distance2d(1,1,0,0);
   assert(approxcompare(1.4,0.1,dist));
+
+  /*
+   * 3D
+   */
+  
+  dist = phymodel_distance3d(0,0,0,0,0,0);
+  assert(approxcompare(0.0,0.001,dist));
+  dist = phymodel_distance3d(1,0,0,0,0,0);
+  assert(approxcompare(1.0,0.001,dist));
+  dist = phymodel_distance3d(1,1,1,0,0,0);
+  assert(approxcompare(1.7,0.1,dist));
+}
+
+static unsigned int ntab;
+static struct atomcoordinates tab[100];
+
+static void
+circlemaptestsaux(unsigned int x,
+		  unsigned int y,
+		  unsigned int z,
+		  struct phymodel* model,
+		  phyatom* atom,
+		  void* data) {
+  assert(ntab < sizeof(tab)/sizeof(struct atomcoordinates));
+  tab[ntab].x = x;
+  tab[ntab].y = y;
+  tab[ntab].z = z;
+  ntab++;
+}
+
+static const char*
+circlemapteststabstring() {
+  static char buf[5000];
+  unsigned int i;
+  memset(buf,0,sizeof(buf));
+  for (i = 0; i < ntab; i++) {
+    char onebuf[100];
+    snprintf(onebuf,sizeof(onebuf)-1,"(%u,%u,%u)",
+	     tab[i].x,
+	     tab[i].y,
+	     tab[i].z);
+    if (buf[0] != 0) strncat(buf,",",sizeof(buf)-1);
+    strncat(buf,onebuf,sizeof(buf)-1);
+  }
+  return(buf);
+}
+  
+static void
+circlemaptests(void) {
+  
+  struct phymodel* m = phymodel_create(1,3,3,3);
+  const char* string;
+  assert(m->xSize == 3);
+  assert(m->ySize == 3);
+  assert(m->zSize == 3);
+  
+  /*
+   * 2D
+   */
+  
+  ntab = 0;
+  phymodel_mapatoms_atdistance2dz(m,1,1,1,1,circlemaptestsaux,(void*)0);
+  string = circlemapteststabstring();
+  debugf("tab = %s", string);
+  assert(strcmp(string,"(0,0,1),(0,1,1),(0,2,1),(1,0,1),(1,2,1),(2,0,1),(2,1,1),(2,2,1)") == 0);
+  
+  ntab = 0;
+  phymodel_mapatoms_atdistance2dz(m,2,2,1,1,circlemaptestsaux,(void*)0);
+  string = circlemapteststabstring();
+  debugf("tab = %s", string);
+  assert(strcmp(string,"(1,1,1),(1,2,1),(2,1,1)") == 0);
+  
+  /*
+   * 3D
+   */
+  
+  ntab = 0;
+  phymodel_mapatoms_atdistance3d(m,1,1,1,1,circlemaptestsaux,(void*)0);
+  string = circlemapteststabstring();
+  debugf("tab = %s", string);
+  assert(strcmp(string,"(0,0,0),(0,0,1),(0,0,2),(0,1,0),(0,1,1),(0,1,2),(0,2,0),(0,2,1),(0,2,2),(1,0,0),(1,0,1),(1,0,2),(1,1,0),(1,1,2),(1,2,0),(1,2,1),(1,2,2),(2,0,0),(2,0,1),(2,0,2),(2,1,0),(2,1,1),(2,1,2),(2,2,0),(2,2,1),(2,2,2)") == 0);
 }
