@@ -164,24 +164,33 @@ circlemapteststabstring() {
 static void
 circlemaptests(void) {
   
-  struct phymodel* m = phymodel_create(1,3,3,3);
+  struct phymodel* m1 = phymodel_create(1,3,3,3);
+  struct phymodel* m2 = phymodel_create(1,10,10,10);
   const char* string;
-  assert(m->xSize == 3);
-  assert(m->ySize == 3);
-  assert(m->zSize == 3);
+
+  /*
+   * Some sanity checks
+   */
+  
+  assert(m1->xSize == 3);
+  assert(m1->ySize == 3);
+  assert(m1->zSize == 3);
+  assert(m2->xSize == 10);
+  assert(m2->ySize == 10);
+  assert(m2->zSize == 10);
   
   /*
    * 2D
    */
   
   ntab = 0;
-  phymodel_mapatoms_atdistance2dz(m,1,1,1,1,circlemaptestsaux,(void*)0);
+  phymodel_mapatoms_atdistance2dz(m1,1,1,1,1,circlemaptestsaux,(void*)0);
   string = circlemapteststabstring();
   debugf("tab = %s", string);
   assert(strcmp(string,"(0,0,1),(0,1,1),(0,2,1),(1,0,1),(1,2,1),(2,0,1),(2,1,1),(2,2,1)") == 0);
   
   ntab = 0;
-  phymodel_mapatoms_atdistance2dz(m,2,2,1,1,circlemaptestsaux,(void*)0);
+  phymodel_mapatoms_atdistance2dz(m1,2,2,1,1,circlemaptestsaux,(void*)0);
   string = circlemapteststabstring();
   debugf("tab = %s", string);
   assert(strcmp(string,"(1,1,1),(1,2,1),(2,1,1)") == 0);
@@ -191,7 +200,13 @@ circlemaptests(void) {
    */
   
   ntab = 0;
-  phymodel_mapatoms_atdistance3d(m,1,1,1,1,circlemaptestsaux,(void*)0);
+  phymodel_mapatoms_atdistance3d(m1,1,1,1,1,circlemaptestsaux,(void*)0);
+  string = circlemapteststabstring();
+  debugf("tab = %s", string);
+  assert(strcmp(string,"(0,0,0),(0,0,1),(0,0,2),(0,1,0),(0,1,1),(0,1,2),(0,2,0),(0,2,1),(0,2,2),(1,0,0),(1,0,1),(1,0,2),(1,1,0),(1,1,2),(1,2,0),(1,2,1),(1,2,2),(2,0,0),(2,0,1),(2,0,2),(2,1,0),(2,1,1),(2,1,2),(2,2,0),(2,2,1),(2,2,2)") == 0);
+  
+  ntab = 0;
+  phymodel_mapatoms_atdistance3d(m2,1,1,1,1,circlemaptestsaux,(void*)0);
   string = circlemapteststabstring();
   debugf("tab = %s", string);
   assert(strcmp(string,"(0,0,0),(0,0,1),(0,0,2),(0,1,0),(0,1,1),(0,1,2),(0,2,0),(0,2,1),(0,2,2),(1,0,0),(1,0,1),(1,0,2),(1,1,0),(1,1,2),(1,2,0),(1,2,1),(1,2,2),(2,0,0),(2,0,1),(2,0,2),(2,1,0),(2,1,1),(2,1,2),(2,2,0),(2,2,1),(2,2,2)") == 0);
