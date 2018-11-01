@@ -305,10 +305,10 @@ simulator_putdrop_circledistance_onecircle(unsigned int x,
    * Nothing there. Add a water atom to the indicated (x,y,z) location.
    */
   
-  debugf("adding water atom at (%u,%u,%u) to drop (%u/%u)",
-	 x, y, z,
-	 drop->natoms,
-	 drop->size);
+  /* debugf("adding water atom at (%u,%u,%u) to drop (%u/%u)",
+		x, y, z,
+		drop->natoms,
+		drop->size); */
   
   phyatom_set_mat(atom,material_water);
   struct atomcoordinates coords;
@@ -379,7 +379,7 @@ simulator_drop_putdrop(struct phymodel* model,
   assert(drop->size <= simulatorstate_maxatomsperdrop);
   
   debugf("putting a drop of size %u at (%u,%u,%u)", drop->size, place->x, place->y, place->z);
-  debugf("initial natoms = %u", drop->natoms);
+  /* debugf("initial natoms = %u", drop->natoms); */
   
   while (drop->natoms < drop->size) {
     debugf("drop circle round %u", distance);

@@ -209,9 +209,11 @@ simulator_move_dropuntilholeandchangedirection(struct simulatorstate* state,
     
     for (anotherdirection = (direction + 1) % direction_howmany;
 	 anotherdirection != direction;
-	 anotherdirection = (anotherdirection + 1) & direction_howmany) {
+	 anotherdirection = (anotherdirection + 1) % direction_howmany) {
 
-      debugf("trying another direction...");
+      if (anotherdirection == direction_z_towards0) continue;
+      if (anotherdirection == direction_z_towardsn) continue;
+      debugf("trying another direction from %u to %u...", direction, anotherdirection);
       if (simulator_move_dropuntilhole(state,model,place,anotherdirection)) return(1);
       
     }
@@ -232,48 +234,60 @@ simulator_move_dropuntilhole(struct simulatorstate* state,
   case direction_x_towards0:
     while (1) {
       debugf("hole search x_towards0 (%u,%u,%u)", place->x, place->y, place->z);
-      if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
-      else if (place->x == 0) return(0);
+      if (phymodel_atomisfree(model,place->x,place->y,place->z)) {
+	debugf("while scanning for hole found one at (%u,%u,%u)", place->x, place->y, place->z);
+	return(1);
+      } else if (place->x == 0) return(0);
       else place->x--;
     }
 
   case direction_x_towardsn:
     while (1) {
       debugf("hole search x_towardsn (%u,%u,%u)", place->x, place->y, place->z);
-      if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
-      else if (place->x == model->xSize - 1) return(0);
+      if (phymodel_atomisfree(model,place->x,place->y,place->z)) {
+	debugf("while scanning for hole found one at (%u,%u,%u)", place->x, place->y, place->z);
+	return(1);
+      } else if (place->x == model->xSize - 1) return(0);
       else place->x++;
     }
 
   case direction_y_towards0:
     while (1) {
       debugf("hole search y_towards0 (%u,%u,%u)", place->x, place->y, place->z);
-      if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
-      else if (place->y == 0) return(0);
+      if (phymodel_atomisfree(model,place->x,place->y,place->z)) {
+	debugf("while scanning for hole found one at (%u,%u,%u)", place->x, place->y, place->z);
+	return(1);
+      } else if (place->y == 0) return(0);
       else place->y--;
     }
 
   case direction_y_towardsn:
     while (1) {
       debugf("hole search y_towardsn (%u,%u,%u)", place->x, place->y, place->z);
-      if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
-      else if (place->y == model->ySize - 1) return(0);
+      if (phymodel_atomisfree(model,place->x,place->y,place->z)) {
+	debugf("while scanning for hole found one at (%u,%u,%u)", place->x, place->y, place->z);
+	return(1);
+      } else if (place->y == model->ySize - 1) return(0);
       else place->y++;
     }
 
   case direction_z_towards0:
     while (1) {
       debugf("hole search z_towards0 (%u,%u,%u)", place->x, place->y, place->z);
-      if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
-      else if (place->z == 0) return(0);
+      if (phymodel_atomisfree(model,place->x,place->y,place->z)) {
+	debugf("while scanning for hole found one at (%u,%u,%u)", place->x, place->y, place->z);
+	return(1);
+      } else if (place->z == 0) return(0);
       else place->z--;
     }
 
   case direction_z_towardsn:
     while (1) {
       debugf("hole search z_towardsn (%u,%u,%u)", place->x, place->y, place->z);
-      if (phymodel_atomisfree(model,place->x,place->y,place->z)) return(1);
-      else if (place->y == model->ySize - 1) return(0);
+      if (phymodel_atomisfree(model,place->x,place->y,place->z)) {
+	debugf("while scanning for hole found one at (%u,%u,%u)", place->x, place->y, place->z);
+	 return(1);
+      } else if (place->y == model->ySize - 1) return(0);
       else place->y++;
     }
 

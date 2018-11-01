@@ -430,8 +430,8 @@ phymodel_mapatoms_atdistance2dx(struct phymodel* model,
       
       double zydistancefloat = phymodel_distance2d(z,y,origoz,origoy);
       unsigned int zydistance = (unsigned int)floor(zydistancefloat);
-      debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
-	     z,y,origoz,origoy,zydistancefloat,zydistance);
+      /* debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
+	 z,y,origoz,origoy,zydistancefloat,zydistance); */
       if (zydistance == distance) {
 	phyatom* atom = phymodel_getatom(model,x,y,z);
 	(*fn)(x,y,z,model,atom,data);
@@ -466,8 +466,8 @@ phymodel_mapatoms_atdistance2dy(struct phymodel* model,
       
       double zxdistancefloat = phymodel_distance2d(z,x,origoz,origox);
       unsigned int zxdistance = (unsigned int)floor(zxdistancefloat);
-      debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
-	     z,y,origox,origoz,zxdistancefloat,zxdistance);
+      /* debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
+	 z,y,origox,origoz,zxdistancefloat,zxdistance); */
       if (zxdistance == distance) {
 	phyatom* atom = phymodel_getatom(model,x,y,z);
 	(*fn)(x,y,z,model,atom,data);
@@ -502,8 +502,8 @@ phymodel_mapatoms_atdistance2dz(struct phymodel* model,
 
       double xydistancefloat = phymodel_distance2d(x,y,origox,origoy);
       unsigned int xydistance = (unsigned int)floor(xydistancefloat);
-      debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
-	     x,y,origox,origoy,xydistancefloat,xydistance);
+      /* debugf("(%u,%u) to (%u,%u) distance is %.2f (%u)",
+	 x,y,origox,origoy,xydistancefloat,xydistance); */
       if (xydistance == distance) {
 	phyatom* atom = phymodel_getatom(model,x,y,z);
 	(*fn)(x,y,z,model,atom,data);
@@ -544,8 +544,8 @@ phymodel_mapatoms_atdistance3d(struct phymodel* model,
 	
 	double xyzdistancefloat = phymodel_distance3d(x,y,z,origox,origoy,origoz);
 	unsigned int xyzdistance = (unsigned int)floor(xyzdistancefloat);
-	debugf("(%u,%u,%u) to (%u,%u,%u) distance is %.2f (%u)",
-	       x,y,z,origox,origoy,origoz,xyzdistancefloat,xyzdistance);
+	/* debugf("(%u,%u,%u) to (%u,%u,%u) distance is %.2f (%u)",
+	   x,y,z,origox,origoy,origoz,xyzdistancefloat,xyzdistance); */
 	if (xyzdistance == distance) {
 	  phyatom* atom = phymodel_getatom(model,x,y,z);
 	  (*fn)(x,y,z,model,atom,data);

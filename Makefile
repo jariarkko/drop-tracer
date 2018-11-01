@@ -109,7 +109,7 @@ test-tracer:	$(LIBOBJECTS) \
 	$(CC) -o test-tracer $(TESTOBJECTS) $(LIBOBJECTS) $(LDFLAGS_IMG) -lm
 
 BASETESTSETTINGS	=	--xsize 64 --ysize 64 --zsize 64
-BASETESTSETTINGSSIMULATOR=	--xsize 32 --ysize 10 --zsize 32
+BASETESTSETTINGSSIMULATOR=	--xsize 32 --ysize 5 --zsize 32
 BASETESTSETTINGSLARGE	=	--xsize 512 --ysize 512 --zsize 512
 BASETESTSETTINGSLARGEWIDE=	--xsize 1024 --ysize 512 --zsize 512
 
@@ -147,11 +147,11 @@ runbasicsimulationtest:	drop-tracer
 		      $(BASETESTSETTINGSSIMULATOR) \
 		      --crack-width 10 --non-uniform --output test7.mod
 	./drop-tracer --image --input test7.mod --output test7.z.jpg
-	./drop-tracer --image --imagey 5 --input test7.mod --output test7.y.jpg
+	./drop-tracer --image --imagey 2 --input test7.mod --output test7.y.jpg
 	./drop-tracer --simulate \
 		      --rounds 1 --drop-frequency 1 --drop-size 10 \
 		      --input test7.mod --output test7s1.mod
-	./drop-tracer --image --imagey 5 --input test7s1.mod --output test7s1.y.jpg
+	./drop-tracer --image --imagey 2 --input test7s1.mod --output test7s1.y.jpg
 
 runlargecreationtest:	drop-tracer
 	./drop-tracer --create-rock --fractal-crack --cave \
