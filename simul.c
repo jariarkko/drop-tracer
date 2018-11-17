@@ -126,6 +126,30 @@ simulator_simulate_round(struct simulatorstate* state,
 			 unsigned int simulDropSize,
 			 unsigned int startingLevel,
 			 int drop) {
+
+  /*
+   * First, move all current drops if they can be moved.
+   */
+  
+  unsigned int i;
+  
+  for (i = 0; i < state->drops.ndrops; i++) {
+    struct simulatordrop* drop = &state->drops.drops[i];
+    if (drop->active) {
+      simulator_drop_movedrop(model,drop);
+      if (!drop->active) {
+	state->dropFellOffModels++;
+      } else {
+	state->dropMovements++;
+	state->atomMovements += drop->natoms;
+      }
+    }
+  }
+
+  /*
+   * Then, create a new drop if we're told to
+   */
+  
   if (drop) {
     simulator_simulate_drop(state,
 			    model,

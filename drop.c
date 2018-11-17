@@ -251,8 +251,8 @@ simulator_drop_addatom(struct phymodel* model,
 }
 
 static void
-simulator_remove_dropatoms(struct phymodel* model,
-			   struct simulatordrop* drop) {
+simulator_drop_remove_dropatoms(struct phymodel* model,
+				struct simulatordrop* drop) {
 
   assert(phymodel_isvalid(model));
   
@@ -262,6 +262,13 @@ simulator_remove_dropatoms(struct phymodel* model,
     phyatom_set_mat(atom,material_air);
     drop->natoms--;
   }
+}
+
+static void
+simulator_drop_donewithdrop(struct phymodel* model,
+			    struct simulatordrop* drop) {
+  simulator_drop_remove_dropatoms(model,drop);
+  drop->active = 0;
 }
 
 struct circledrawingcontext {
@@ -390,4 +397,220 @@ simulator_drop_putdrop(struct phymodel* model,
   }
   
   return(1);
+}
+
+static int
+simulator_drop_atomisonmodellimit(struct phymodel* model,
+				  struct atomcoordinates* atomcoordinates) {
+  if (atomcoordinates->z == 0 || atomcoordinates->z >= model->zSize - 1) return(1);
+  else if (atomcoordinates->x == 0 || atomcoordinates->x >= model->xSize - 1) return(1);
+  else if (atomcoordinates->y == 0 || atomcoordinates->y >= model->ySize - 1) return(1);
+  else return(0);
+}
+
+static int
+simulator_drop_atomhasspaceunderneath(struct phymodel* model,
+				      struct atomcoordinates* atomcoordinates) {
+  if (simulator_drop_atomisonmodellimit(model,atomcoordinates)) return(1);
+  unsigned int nextZ = atomcoordinates->z + 1;
+  assert(nextZ < model->zSize);
+  phyatom* atom = phymodel_getatom(model,atomcoordinates->x,atomcoordinates->y,nextZ);
+  if (phyatom_mat(atom) == material_air) return(1);
+  else return(0);
+}
+
+static int
+simulator_drop_canmovedrop(struct phymodel* model,
+			   struct simulatordrop* drop) {
+  /*
+   * A drop can be moved if there's free space under any of its water
+   * atoms.
+   */
+  
+  unsigned int i;
+  for (i = 0; i < drop->natoms; i++) {
+    if (simulator_drop_atomhasspaceunderneath(model,&drop->atoms[i])) return(1);
+  }
+  
+  /*
+   * Did not find anything underneath that would allow the water to
+   * fall or flow.
+   */
+  
+  return(0);
+}
+
+static unsigned int
+simulator_drop_lowestpoint(struct phymodel* model,
+			   struct simulatordrop* drop) {
+  unsigned int i;
+  unsigned int lowestpoint = 0;
+  
+  assert(drop->natoms > 0);
+  for (i = 0; i < drop->natoms; i++) {
+    struct atomcoordinates* coords = &drop->atoms[i];
+    if (coords->z > lowestpoint) lowestpoint = coords->z;
+  }
+  
+  return(lowestpoint);
+}
+
+static int
+simulator_drop_shouldfall(struct phymodel* model,
+			  struct simulatordrop* drop) {
+  /* ... */
+  return(0);
+}
+
+static unsigned int
+simulator_drop_determinedropwidth(struct phymodel* model,
+				  struct simulatordrop* drop) {
+  /* ... */
+  return(1);
+}
+
+static unsigned int
+simulator_drop_determinedropend(struct phymodel* model,
+				struct simulatordrop* drop,
+				unsigned int dropwidth) {
+  /* ... */
+  return(0);
+}
+
+static double
+simulator_drop_determinedropspeed(struct phymodel* model,
+				  struct simulatordrop* drop,
+				  unsigned int height) {
+  /*
+   * Using the equations from https://en.wikipedia.org/wiki/Equations_for_a_falling_body
+   *
+   * Instantaneous velocity (v_i) of an object that has falled distance d:
+   *
+   *   v_i = sqrt(2gd)
+   *
+   */
+  
+  double d = (1.0 * height) / (1.0 * model->unit);
+  double g = 9.81;
+  double v_i = sqrt(2.0 * g * d);
+  return(v_i);
+}
+
+static unsigned int
+simulator_drop_determinedropsplit(struct phymodel* model,
+				  struct simulatordrop* drop,
+				  double speed) {
+  
+  double splitminlimit = 1.4; /* e.g., 10cm drop */
+  double splitmaxlimit = 14.0; /* e.g., 10m drop */
+  unsigned int splitmaxn = 10;
+  
+  if (speed <= splitminlimit) {
+    
+    return(1);
+    
+  } else if (drop->size <= 1) {
+    
+    return(1);
+    
+  } else {
+    
+    double range = splitmaxlimit - splitminlimit;
+    unsigned int maxsplit =
+      speed >= splitmaxlimit ?
+      splitmaxn :
+      (2 + floor((splitmaxn - 2) * ((speed - splitminlimit) / range)));
+    return(rand() % maxsplit);
+    
+  }
+  
+}
+
+static void
+simulator_drop_domovedrop(struct phymodel* model,
+			  struct simulatordrop* drop) {
+  
+  /*
+   * Check first if the drop is about to exit from any limit of the
+   * model. If so, just delete it.
+   */
+  
+  unsigned int i;
+  for (i = 0; i < drop->natoms; i++) {
+    if (simulator_drop_atomisonmodellimit(model,&drop->atoms[i])) {
+      simulator_drop_donewithdrop(model,drop);
+      return;
+    }
+  }
+
+  /*
+   * Figure out if the drop should fall, ie detach from the surface it is on.
+   */
+
+  int shouldfall = simulator_drop_shouldfall(model,drop);
+  
+  if (shouldfall) {
+
+    /*
+     * It falls, determine how much water/residue should be left in
+     * the surface the drop was previously attached to.
+     */
+    
+    /* ... */
+
+    /*
+     * Then determine how far the drop will fall, and calculate speed.
+     */
+
+    unsigned int w = simulator_drop_determinedropwidth(model,drop);
+    unsigned int z = simulator_drop_determinedropend(model,drop,w);
+    
+    /*
+     * If the drop will fall off the model, then just make it disappear.
+     */
+
+    if (z >= model->zSize) {
+      simulator_drop_donewithdrop(model,drop);
+      return;
+    }
+    
+    unsigned int l = simulator_drop_lowestpoint(model,drop);
+    assert(l < z);
+    unsigned int h = z - l;
+    double speed = simulator_drop_determinedropspeed(model,drop,h);
+    unsigned int s = simulator_drop_determinedropsplit(model,drop,speed);
+    
+    /* ... */
+    
+    /*
+     * Finally, calculate what happens to the drop when it hits the lower surface
+     */
+
+    /* ... */
+    
+  } else {
+
+    /*
+     * It is still attached to the surface but just moves
+     * forward/down. Determine first how much of the water/residue is
+     * left on the surface it passed.
+     */
+    
+    /* ... */
+
+    /*
+     * Then determine how it moves
+     */
+    
+    /* ... */
+    
+  }
+}
+
+void
+simulator_drop_movedrop(struct phymodel* model,
+			struct simulatordrop* drop) {
+  if (simulator_drop_canmovedrop(model,drop)) {
+    simulator_drop_domovedrop(model,drop);
+  }
 }

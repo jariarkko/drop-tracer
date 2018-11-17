@@ -173,9 +173,10 @@ install:	drop-tracer
 clean:
 	rm -f drop-tracer $(CMDOBJECTS) $(LIBOBJECTS)
 	rm -f *~
-	rm -f debug.jpg
+	rm -f debug.*
 	rm -f test.mod
 	rm -f test.jpg
+	rm -f test.tmp
 	rm -f test[1-9]*.mod
 	rm -f test[1-9]*.jpg
 

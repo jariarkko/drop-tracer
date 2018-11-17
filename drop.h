@@ -60,5 +60,8 @@ int
 simulator_drop_putdrop(struct phymodel* model,
 		       struct atomcoordinates* place,
 		       struct simulatordrop* drop);
+void
+simulator_drop_movedrop(struct phymodel* model,
+			struct simulatordrop* drop);
 
 #endif /* DROP_H */
