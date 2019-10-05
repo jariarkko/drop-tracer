@@ -233,6 +233,7 @@ simulator_drop_nextatomsareinthisdrop(struct phymodel* model,
     if (simulator_coords_equal(coords,place)) return(1);
     else if (simulator_coords_adjacent(coords,place)) return(1);
   }
+  
   return(0);
 }
 
@@ -442,14 +443,18 @@ simulator_drop_canmovedrop(struct phymodel* model,
 
 static unsigned int
 simulator_drop_lowestpoint(struct phymodel* model,
-			   struct simulatordrop* drop) {
+			   struct simulatordrop* drop,
+			   struct atomcoordinates* lowestatom) {
   unsigned int i;
   unsigned int lowestpoint = 0;
   
   assert(drop->natoms > 0);
   for (i = 0; i < drop->natoms; i++) {
     struct atomcoordinates* coords = &drop->atoms[i];
-    if (coords->z > lowestpoint) lowestpoint = coords->z;
+    if (coords->z > lowestpoint) {
+      lowestpoint = coords->z;
+      *lowestatom = *coords;
+    }
   }
   
   return(lowestpoint);
@@ -465,15 +470,43 @@ simulator_drop_shouldfall(struct phymodel* model,
 static unsigned int
 simulator_drop_determinedropwidth(struct phymodel* model,
 				  struct simulatordrop* drop) {
-  /* ... */
-  return(1);
+  unsigned int n = drop->size;
+  double w = n / 3.0;
+  w = sqrt(w);
+  if (w < 1.0) w = 1.0;
+  return((unsigned int)floor(w+0.5));
 }
 
 static unsigned int
 simulator_drop_determinedropend(struct phymodel* model,
 				struct simulatordrop* drop,
+				unsigned int lowestpoint,
+				struct atomcoordinates* lowestatom,
 				unsigned int dropwidth) {
-  /* ... */
+
+  unsigned int prevlevel = lowestpoint;
+  unsigned int level = prevlevel + 1;
+  unsigned int firsthalfwidth = dropwidth / 2;
+  unsigned int secondhalfwidth = dropwidth - firsthalfwidth;
+  
+  for (;;) {
+    int x,y;
+    if (level == model->zSize) return(level);
+    for (x = firsthalfwidth > lowestatom->x ? 0 : lowestatom->x - firsthalfwidth;
+	 x < lowestatom->x + secondhalfwidth && x < model->xSize;
+	 x++) {
+      for (y = firsthalfwidth > lowestatom->y ? 0 : lowestatom->y - firsthalfwidth;
+	   y < lowestatom->y + secondhalfwidth && x < model->ySize;
+	   y++) {
+        if (!phymodel_atomisfree(model,x,y,level)) {
+          return(prevlevel);
+        } else {
+          prevlevel = level;
+          level++;
+        }
+      } 
+    } 
+  } 
   return(0);
 }
 
@@ -538,6 +571,7 @@ simulator_drop_domovedrop(struct phymodel* model,
   unsigned int i;
   for (i = 0; i < drop->natoms; i++) {
     if (simulator_drop_atomisonmodellimit(model,&drop->atoms[i])) {
+      debugf("drop %u: falls out of model", drop->index);
       simulator_drop_donewithdrop(model,drop);
       return;
     }
@@ -561,24 +595,34 @@ simulator_drop_domovedrop(struct phymodel* model,
     /*
      * Then determine how far the drop will fall, and calculate speed.
      */
-
+    
+    struct atomcoordinates lowestatomcoords;
     unsigned int w = simulator_drop_determinedropwidth(model,drop);
-    unsigned int z = simulator_drop_determinedropend(model,drop,w);
+    unsigned int l = simulator_drop_lowestpoint(model,drop,&lowestatomcoords);
+    unsigned int z = simulator_drop_determinedropend(model,drop,l,&lowestatomcoords,w);
+    assert(l < z);
+    unsigned int h = z - l;
+    double speed = simulator_drop_determinedropspeed(model,drop,h);
     
     /*
      * If the drop will fall off the model, then just make it disappear.
      */
 
     if (z >= model->zSize) {
+      debugf("drop %u: drops, and falls %u units out of model at speed %.2f m/s",
+	     drop->index,
+	     h,
+	     speed);
       simulator_drop_donewithdrop(model,drop);
       return;
     }
     
-    unsigned int l = simulator_drop_lowestpoint(model,drop);
-    assert(l < z);
-    unsigned int h = z - l;
-    double speed = simulator_drop_determinedropspeed(model,drop,h);
     unsigned int s = simulator_drop_determinedropsplit(model,drop,speed);
+    debugf("drop %u: drops %u units to level %u at speed %.2f m/s, splitting to %u drops",
+	   drop->index,
+	   h,
+	   speed,
+	   s);
     
     /* ... */
     
@@ -597,7 +641,7 @@ simulator_drop_domovedrop(struct phymodel* model,
      */
     
     /* ... */
-
+    
     /*
      * Then determine how it moves
      */

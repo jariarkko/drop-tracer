@@ -61,20 +61,23 @@ typedef unsigned char phyatom;
  * The coordinate systems is (x,y,z) and the coordinates represent a
  * cube as follows:
  *
- *                        .
- *                       /|\  z -- vertical
+ *                  _     
+ *                 /\     
+ *          y --     \    
+ *        horizontal  \   
+ *                     \  
+ *                      \ 
+ *                       \
+ *                        0--------------->   x -- horizontal
  *                        |
  *                        |
- *                  _     |
- *                 /\     |
- *          y --     \    |
- *        horizontal  \   |
- *                     \  |
- *                      \ |
- *                       \|
- *                        o--------------->   x -- horizontal
+ *                        |
+ *                        |
+ *                        |
+ *                        |
+ *                       \|/  z -- vertical (high values at the bottom)
+ *                        '
  *
- *  
  */
 
 struct phymodel {
