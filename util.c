@@ -31,6 +31,8 @@
 #include "util.h"
 
 int debug = 0;
+int deepdebug = 0;
+int deepdeepdebug = 0;
 
 void
 fatal(const char* message) {
@@ -120,6 +122,40 @@ debugf(const char* format, ...) {
   }
 }
 
+void
+deepdebugf(const char* format, ...) {
+  
+  assert(format != 0);
+ 
+  if (deepdebug) {
+    
+    va_list args;
+    printf("debug:   ");
+    va_start (args, format);
+    vprintf(format, args);
+    va_end (args);
+    printf("\n");
+    
+  }
+}
+
+void
+deepdeepdebugf(const char* format, ...) {
+  
+  assert(format != 0);
+ 
+  if (deepdeepdebug) {
+    
+    va_list args;
+    printf("debug:     ");
+    va_start (args, format);
+    vprintf(format, args);
+    va_end (args);
+    printf("\n");
+    
+  }
+}
+
 unsigned int
 subsorzero(unsigned int a,
 	   unsigned int b) {
@@ -140,4 +176,28 @@ stringendswith(const char *string,
     return(0);
   else
     return(1);
+}
+
+unsigned int
+randompickwithinrange(unsigned int value,
+                      unsigned int maxsmaller,
+                      unsigned int maxlarger,
+                      unsigned int maxvalue) {
+  // Sanity checks
+  assert(value < maxvalue);
+  
+  // First ensure that we are not going beyond 0 in one end
+  if (maxsmaller > value) maxsmaller = value;
+  // Then ensure that we are not going beyond maxvalue on the other end
+  if (maxlarger >= maxvalue - value) maxlarger = maxvalue - value;
+  
+  // Then pick a range of possible values
+  unsigned int start = value - maxsmaller;
+  unsigned int range = maxsmaller + maxlarger;
+
+  // Then use random to pick a value in that range
+  unsigned int finalvalue = start + (rand() % range);
+
+  // Done. Return the new value.
+  return(finalvalue);
 }

@@ -143,15 +143,30 @@ runbasiccreationtest:	drop-tracer
 	./drop-tracer --image --imagex 32 --input test4.mod --output test4.x.jpg
 
 runbasicsimulationtest:	drop-tracer
-	./drop-tracer --create-rock --simple-crack \
+	./drop-tracer --create-rock --simple-crack --cave \
 		      $(BASETESTSETTINGSSIMULATOR) \
+		      --seed 1000 \
 		      --crack-width 10 --non-uniform --output test7.mod
 	./drop-tracer --image --input test7.mod --output test7.z.jpg
 	./drop-tracer --image --imagey 2 --input test7.mod --output test7.y.jpg
 	./drop-tracer --simulate \
 		      --rounds 1 --drop-frequency 1 --drop-size 10 \
+		      --seed 3008 \
 		      --input test7.mod --output test7s1.mod
 	./drop-tracer --image --imagey 2 --input test7s1.mod --output test7s1.y.jpg
+	./drop-tracer --image --imagey 2 --input test7s1.mod --output test7s1.y.txt
+	./drop-tracer --simulate \
+		      --seed 3008 \
+		      --rounds 10 --drop-frequency 10 --drop-size 10 --progress-images test7s2.progress.%.jpg \
+		      --input test7.mod --output test7s2.mod
+	./drop-tracer --image --imagey 2 --input test7s2.mod --output test7s2.y.jpg
+	./drop-tracer --image --imagey 2 --input test7s2.mod --output test7s2.y.txt
+	./drop-tracer --simulate \
+		      --rounds 10 --drop-frequency 1 --drop-size 10 \
+		      --seed 3008 \
+		      --input test7.mod --output test7s3.mod
+	./drop-tracer --image --imagey 2 --input test7s3.mod --output test7s3.y.jpg
+	./drop-tracer --image --imagey 2 --input test7s3.mod --output test7s3.y.txt
 
 runlargecreationtest:	drop-tracer
 	./drop-tracer --create-rock --fractal-crack --cave \

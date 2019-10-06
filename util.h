@@ -27,6 +27,8 @@
 #define UTIL_H
 
 extern int debug;
+extern int deepdebug;
+extern int deepdeepdebug;
 extern void fatal(const char* message);
 extern void fatals(const char* message,
 		   const char* string);
@@ -47,11 +49,20 @@ extern void fatalsxx(const char* message,
 		     unsigned int x2);
 extern void debugf(const char* format,
 		   ...);
+extern void deepdebugf(const char* format,
+                       ...);
+extern void deepdeepdebugf(const char* format,
+                           ...);
 extern unsigned int
 subsorzero(unsigned int a,
 	   unsigned int b);
 extern int
 stringendswith(const char *string,
 	       const char *suffix);
+extern unsigned int
+randompickwithinrange(unsigned int value,
+                      unsigned int maxsmaller,
+                      unsigned int maxlarger,
+                      unsigned int maxvalue);
 
 #endif /* UTIL_H */

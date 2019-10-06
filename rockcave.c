@@ -42,9 +42,11 @@ phymodel_initialize_rock_cavetunnel(struct phymodel* model,
    * Calculate basic characteristics, wall thickness etc.
    */
   
-  unsigned int wallthicknessmin = 10;
+  unsigned int wallthicknessmin = (model->xSize < 100) ? model->xSize / 10 : 10;
+  if (wallthicknessmin < 1) wallthicknessmin = 1;
   unsigned int wallthicknessfraction = 100;
   unsigned int wallthicknessasfraction = model->xSize / wallthicknessfraction;
+  if (wallthicknessasfraction < 1) wallthicknessasfraction = 1;
   unsigned int wallthickness = (wallthicknessasfraction < wallthicknessmin) ? wallthicknessmin : wallthicknessasfraction;
   
   /*

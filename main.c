@@ -67,6 +67,7 @@ static unsigned int simulDropFrequency = 100;
 static unsigned int simulDropSize = 30; /* in atoms */
 static int simulTextualSnapshot = 0;
 static const unsigned int maxTextualSnapshotDimension = 150;
+static const char* progressImages = 0;
 
 static struct option long_options[] = {
   
@@ -76,6 +77,10 @@ static struct option long_options[] = {
   
   {"debug", no_argument,               &debug, 1},
   {"no-debug", no_argument,            &debug, 0},
+  {"deepdebug", no_argument,           &deepdebug, 1},
+  {"no-debug", no_argument,            &deepdebug, 0},
+  {"deepdeepdebug", no_argument,       &deepdeepdebug, 1},
+  {"no-deepdeepdebug", no_argument,    &deepdeepdebug, 0},
   {"create-rock", no_argument,         (int*)&operation, drop_tracer_operation_createrock},
   {"simple-crack", no_argument,        (int*)&creationStyle, rockinitialization_simplecrack},
   {"fractal-crack", no_argument,       (int*)&creationStyle, rockinitialization_fractalcrack},
@@ -114,6 +119,7 @@ static struct option long_options[] = {
   {"input",                        required_argument, 0, 'i'},
   {"output",                       required_argument, 0, 'o'},
   {"seed",                         required_argument, 0, 'S'},
+  {"progress-images",              required_argument, 0, 'M'},
   
   /*
    * End of the options table
@@ -208,7 +214,14 @@ main(int argc,
 	  fatals("simulator drop size must be a positive integer, got",optarg);
 	}
 	break;
-	
+        
+      case 'S':
+        seed = (long)atoi(optarg);
+	if (seed == 0) {
+	  fatals("random seed must be a positive integer, got",optarg);
+	}
+	break;
+        
       case 'x':
 	xSize = atoi(optarg);
 	if (xSize <= 0) {
@@ -264,7 +277,14 @@ main(int argc,
       case 'o':
 	outputfile = optarg;
 	break;
-	
+
+      case 'M':
+	progressImages = optarg;
+        if (index(progressImages,'%') == 0) {
+	  fatals("progress image must have percent sign, got only",optarg);
+        }
+        break;
+        
       case 'R':
 	simulRounds = atoi(optarg);
 	if (simulRounds > 0 && strlen(optarg) > 0 && isalpha(optarg[strlen(optarg)-1])) {
@@ -314,6 +334,8 @@ main(int argc,
    */
   
   srand(seed);
+  if (deepdeepdebug) deepdebug = 1;
+  if (deepdebug) debug = 1;
   
   /*
    * Perform requested action
@@ -382,7 +404,7 @@ main(int argc,
 		       simulRounds,
 		       simulDropFrequency,
 		       simulDropSize,
-		       simulTextualSnapshot);
+		       progressImages);
     phymodel_write(model,outputfile);
     phymodel_destroy(model);
     break;

@@ -313,10 +313,10 @@ simulator_putdrop_circledistance_onecircle(unsigned int x,
    * Nothing there. Add a water atom to the indicated (x,y,z) location.
    */
   
-  /* debugf("adding water atom at (%u,%u,%u) to drop (%u/%u)",
-		x, y, z,
-		drop->natoms,
-		drop->size); */
+  deepdeepdebugf("adding water atom at (%u,%u,%u) to drop (%u/%u)",
+                 x, y, z,
+                 drop->natoms,
+                 drop->size);
   
   phyatom_set_mat(atom,material_water);
   struct atomcoordinates coords;
@@ -334,9 +334,9 @@ simulator_putdrop_circledistance(struct phymodel* model,
 
   assert(phymodel_isvalid(model));
 
-  debugf("simulator_putdrop_circledistance (%u,%u,%u) distance %u",
-	 place->x, place->y, place->z,
-	 distance);
+  deepdeepdebugf("simulator_putdrop_circledistance (%u,%u,%u) distance %u",
+                 place->x, place->y, place->z,
+                 distance);
   
   if (distance == 0) {
     
@@ -386,11 +386,11 @@ simulator_drop_putdrop(struct phymodel* model,
   assert(phymodel_isvalid(model));
   assert(drop->size <= simulatorstate_maxatomsperdrop);
   
-  debugf("putting a drop of size %u at (%u,%u,%u)", drop->size, place->x, place->y, place->z);
+  deepdeepdebugf("putting a drop of size %u at (%u,%u,%u)", drop->size, place->x, place->y, place->z);
   /* debugf("initial natoms = %u", drop->natoms); */
   
   while (drop->natoms < drop->size) {
-    debugf("drop circle round %u", distance);
+    deepdeepdebugf("drop circle round %u", distance);
     if (!simulator_putdrop_circledistance(model,place,drop,distance)) {
       if (drop->natoms < drop->size) return(0);
     }
@@ -403,10 +403,22 @@ simulator_drop_putdrop(struct phymodel* model,
 static int
 simulator_drop_atomisonmodellimit(struct phymodel* model,
 				  struct atomcoordinates* atomcoordinates) {
-  if (atomcoordinates->z == 0 || atomcoordinates->z >= model->zSize - 1) return(1);
-  else if (atomcoordinates->x == 0 || atomcoordinates->x >= model->xSize - 1) return(1);
-  else if (atomcoordinates->y == 0 || atomcoordinates->y >= model->ySize - 1) return(1);
-  else return(0);
+  int ans;
+  const char* reason = "";
+  if (atomcoordinates->z == 0 || atomcoordinates->z >= model->zSize - 1) { ans = 1; reason = " due to z"; }
+  else if (atomcoordinates->x == 0 || atomcoordinates->x >= model->xSize - 1) { ans = 1; reason = " due  to x"; }
+  else if (atomcoordinates->y == 0 || atomcoordinates->y >= model->ySize - 1) { ans = 1; reason = " due to y"; }
+  else ans = 0;
+  deepdeepdebugf("atom (%u,%u,%u) is on model limit = %u%s (model %ux%ux%u)",
+                 atomcoordinates->x,
+                 atomcoordinates->y,
+                 atomcoordinates->z,
+                 ans,
+                 reason,
+                 model->xSize,
+                 model->ySize,
+                 model->zSize);
+  return(ans);
 }
 
 static int
@@ -421,8 +433,60 @@ simulator_drop_atomhasspaceunderneath(struct phymodel* model,
 }
 
 static int
+simulator_drop_atomhasrockonthesideauxaux(struct phymodel* model,
+                                          unsigned int x,
+                                          unsigned int y,
+                                          unsigned int z) {
+  assert(model != 0);
+  assert(x < model->xSize);
+  assert(y < model->ySize);
+  assert(z < model->zSize);
+  deepdeepdebugf("    atom has rock auxaux at (%u,%u,%u): %u", x, y, z, phymodel_atommat(model,x,y,z));
+  return(phymodel_atommat(model,x,y,z) == material_rock);
+}
+
+static int
+simulator_drop_atomhasrockonthesideaux(struct phymodel* model,
+                                       struct atomcoordinates* atomcoordinates) {
+  unsigned int x = atomcoordinates->x;
+  unsigned int y = atomcoordinates->y;
+  unsigned int z = atomcoordinates->z;
+  if (x > 0 && simulator_drop_atomhasrockonthesideauxaux(model,x-1,y,z)) return(1);
+  if (x < model->xSize-1 && simulator_drop_atomhasrockonthesideauxaux(model,x+1,y,z)) return(1);
+  if (y > 0 && simulator_drop_atomhasrockonthesideauxaux(model,x,y-1,z)) return(1);
+  if (y < model->ySize-1 && simulator_drop_atomhasrockonthesideauxaux(model,x,y+1,z)) return(1);
+  if (x > 0 && y > 0 && simulator_drop_atomhasrockonthesideauxaux(model,x-1,y-1,z)) return(1);
+  if (x > 0 && y < model->ySize-1 && simulator_drop_atomhasrockonthesideauxaux(model,x-1,y+1,z)) return(1);
+  if (x < model->xSize-1 && y > 0 && simulator_drop_atomhasrockonthesideauxaux(model,x+1,y-1,z)) return(1);
+  if (x < model->xSize-1 && y < model->ySize-1 && simulator_drop_atomhasrockonthesideauxaux(model,x+1,y+1,z)) return(1);
+  return(0);
+}
+
+static int
+simulator_drop_atomhasrockontheside(struct phymodel* model,
+                                    struct atomcoordinates* atomcoordinates,
+                                    struct simulatordrop* drop) {
+  deepdeepdebugf("inspecting if rock on the side of drop %u in coordinates (%u,%u,%u)",
+                 drop->index, atomcoordinates->x, atomcoordinates->y, atomcoordinates->z);
+  if (simulator_drop_atomisonmodellimit(model,atomcoordinates)) return(0);
+  for (unsigned int i = 0; i < drop->natoms; i++) {
+    struct atomcoordinates* otheratom = &drop->atoms[i];
+    if (otheratom->z == atomcoordinates->z) { // !simulator_coords_equal(otheratom,atomcoordinates)
+      deepdeepdebugf("  inspecting if rock on drop %u's other atom in coordinates (%u,%u,%u)",
+                     drop->index, otheratom->x, otheratom->y, otheratom->z);
+      if (simulator_drop_atomhasrockonthesideaux(model,
+                                                 otheratom)) {
+        return(1);
+      }
+    }
+  }
+  return(0);
+}
+
+static int
 simulator_drop_canmovedrop(struct phymodel* model,
 			   struct simulatordrop* drop) {
+  
   /*
    * A drop can be moved if there's free space under any of its water
    * atoms.
@@ -430,7 +494,10 @@ simulator_drop_canmovedrop(struct phymodel* model,
   
   unsigned int i;
   for (i = 0; i < drop->natoms; i++) {
-    if (simulator_drop_atomhasspaceunderneath(model,&drop->atoms[i])) return(1);
+    if (simulator_drop_atomhasspaceunderneath(model,&drop->atoms[i])) {
+      deepdebugf("drop %u can move", drop->index);
+      return(1);
+    }
   }
   
   /*
@@ -438,6 +505,7 @@ simulator_drop_canmovedrop(struct phymodel* model,
    * fall or flow.
    */
   
+  debugf("cannot move drop %u", drop->index);
   return(0);
 }
 
@@ -463,7 +531,24 @@ simulator_drop_lowestpoint(struct phymodel* model,
 static int
 simulator_drop_shouldfall(struct phymodel* model,
 			  struct simulatordrop* drop) {
-  /* ... */
+  assert(drop->natoms > 0);
+  for (unsigned int i = 0; i < drop->natoms; i++) {
+    struct atomcoordinates* coords = &drop->atoms[i];
+    if (simulator_drop_atomhasspaceunderneath(model,coords)) {
+      if (simulator_drop_atomisonmodellimit(model,coords)) {
+        deepdebugf("drop %u can fall because we are on the model limit next to coordinates (%u,%u,%u)",
+                   coords->x, coords->y, coords->z);
+        return(1);
+      } else if (simulator_drop_atomhasrockontheside(model,coords,drop)) {
+        deepdebugf("drop %u can't fall because there's space under coordinates (%u,%u,%u) but rock by it",
+                   coords->x, coords->y, coords->z);
+      } else {
+        deepdebugf("drop %u can fall because there's space under coordinates (%u,%u,%u) and no rock around",
+                   coords->x, coords->y, coords->z);
+        return(1);
+      }
+    }
+  }
   return(0);
 }
 
@@ -491,7 +576,10 @@ simulator_drop_determinedropend(struct phymodel* model,
   
   for (;;) {
     int x,y;
-    if (level == model->zSize) return(level);
+    if (level == model->zSize) {
+      deepdeepdebugf("reached the bottom of the z-direction, returning %u", level);
+      return(level);
+    }
     for (x = firsthalfwidth > lowestatom->x ? 0 : lowestatom->x - firsthalfwidth;
 	 x < lowestatom->x + secondhalfwidth && x < model->xSize;
 	 x++) {
@@ -499,15 +587,23 @@ simulator_drop_determinedropend(struct phymodel* model,
 	   y < lowestatom->y + secondhalfwidth && x < model->ySize;
 	   y++) {
         if (!phymodel_atomisfree(model,x,y,level)) {
+          deepdeepdebugf("found a non-free atom at level %u", level);
           return(prevlevel);
-        } else {
-          prevlevel = level;
-          level++;
         }
       } 
-    } 
-  } 
-  return(0);
+    }
+    
+    /*
+     * No stable ground (non-air atoms) found at this level in
+     * z-direction. Continue further down.
+     */
+    
+    prevlevel = level;
+    level++;
+  }
+  
+  // NOT REACHED
+  assert(0);
 }
 
 static double
@@ -561,13 +657,15 @@ simulator_drop_determinedropsplit(struct phymodel* model,
 
 static void
 simulator_drop_domovedrop(struct phymodel* model,
+                          struct simulatorstate* simulator,
 			  struct simulatordrop* drop) {
   
   /*
    * Check first if the drop is about to exit from any limit of the
    * model. If so, just delete it.
    */
-  
+
+  deepdebugf("moving drop %u", drop->index);
   unsigned int i;
   for (i = 0; i < drop->natoms; i++) {
     if (simulator_drop_atomisonmodellimit(model,&drop->atoms[i])) {
@@ -576,7 +674,7 @@ simulator_drop_domovedrop(struct phymodel* model,
       return;
     }
   }
-
+  
   /*
    * Figure out if the drop should fall, ie detach from the surface it is on.
    */
@@ -586,23 +684,40 @@ simulator_drop_domovedrop(struct phymodel* model,
   if (shouldfall) {
 
     /*
-     * It falls, determine how much water/residue should be left in
-     * the surface the drop was previously attached to.
-     */
-    
-    /* ... */
-
-    /*
      * Then determine how far the drop will fall, and calculate speed.
      */
     
     struct atomcoordinates lowestatomcoords;
     unsigned int w = simulator_drop_determinedropwidth(model,drop);
+    deepdeepdebugf("drop width = %u", w);
     unsigned int l = simulator_drop_lowestpoint(model,drop,&lowestatomcoords);
+    deepdeepdebugf("lowest point = %u", l);
     unsigned int z = simulator_drop_determinedropend(model,drop,l,&lowestatomcoords,w);
+    deepdeepdebugf("drop end = %u", z);
     assert(l < z);
     unsigned int h = z - l;
+    double hm = (h * 1.0) / (model->unit * 1.0);
+    deepdeepdebugf("drop height = %.2f", hm);
     double speed = simulator_drop_determinedropspeed(model,drop,h);
+    deepdeepdebugf("drop speed = %.2f m/s", speed);
+    
+    /*
+     * Then determine how much calciate residue should be left in
+     * the surface the drop was previously attached to.
+     */
+    
+    deepdebugf("drop %u should fall", drop->index);
+
+    double calciteconsumptionlength = 0.5; /* meters, for which half of calcite is removed */
+    double limit = (drop->calcite * drop->natoms) * (hm / calciteconsumptionlength);
+    double randomValue = (1.0 * rand()) / (1.0 * RAND_MAX);
+    unsigned int nCalciteResidueAtoms = (randomValue < limit);
+    deepdebugf("leaving %u calcite residue atoms due to limit %.4f and random %.4f",
+               nCalciteResidueAtoms,
+               limit,
+               randomValue);
+    drop->calcite -= ((1.0 * nCalciteResidueAtoms) / (1.0 * drop->natoms));
+    if (drop->calcite < 0.0) drop->calcite = 0.0;
     
     /*
      * If the drop will fall off the model, then just make it disappear.
@@ -614,26 +729,75 @@ simulator_drop_domovedrop(struct phymodel* model,
 	     h,
 	     speed);
       simulator_drop_donewithdrop(model,drop);
+      debugf("drop %u has dropped out of the model", drop->index);
       return;
     }
     
     unsigned int s = simulator_drop_determinedropsplit(model,drop,speed);
-    debugf("drop %u: drops %u units to level %u at speed %.2f m/s, splitting to %u drops",
-	   drop->index,
-	   h,
-	   speed,
-	   s);
-    
-    /* ... */
-    
-    /*
-     * Finally, calculate what happens to the drop when it hits the lower surface
-     */
+    deepdebugf("drop %u: drops %u units to level %u at speed %.2f m/s, splitting to %u drops",
+               drop->index,
+               h,
+               speed,
+               s);
 
-    /* ... */
+    if (s == 1) {
+      
+      /* ... */
+      
+      /*
+       * Finally, calculate what happens to the drop when it hits the lower surface
+       */
+      
+      /* ... */
+      
+      debugf("drop %u has dropped", drop->index);
+      
+    } else {
+
+      unsigned int origSize = drop->size;
+      for (unsigned int j = 0; j < s; j++) {
+        
+        struct simulatordrop* newdrop = simulator_droptable_getdrop(&simulator->drops);
+        if (newdrop == 0) {
+          simulator->failedDropAllocations++;
+        } else {
+          newdrop->calcite = drop->calcite;
+          newdrop->calcitecolor = drop->calcitecolor;
+          newdrop->size = origSize / (s-j);
+          if (newdrop->size == 0) newdrop->size = 1;
+          double dropBounceHeightM = 0.1; /* m */
+          double dropFlyDistanceM = 0.1; /* m */
+          unsigned int dropBounceHeight  = model->unit * dropBounceHeightM;
+          unsigned int dropFlyDistance  = model->unit * dropFlyDistanceM;
+          if (z - l < dropBounceHeight) dropBounceHeight = (z-l)/2;
+          struct atomcoordinates newplace;
+          newplace.x = randompickwithinrange(lowestatomcoords.x,dropFlyDistance,dropFlyDistance,model->xSize);
+          newplace.y = randompickwithinrange(lowestatomcoords.y,dropFlyDistance,dropFlyDistance,model->ySize);
+          newplace.z = z - dropBounceHeight;
+          if (simulator_drop_enoughspaceforwater(model,&newplace,newdrop->size) &&
+              simulator_drop_putdrop(model,&newplace,drop)) {
+            simulator->atomCreations += newdrop->natoms;
+            simulator->spinOffDrops++;
+            debugf("drop %u of size %u split off into new drop %u of size %u",
+                   drop->index, drop->size, newdrop->index, newdrop->size);
+          } else {
+            simulator->failedSpinoffDropSpaceFinding++;
+            debugf("unable to find space for a new drop of size %u", newdrop->size);
+            simulator_droptable_deletedrop(&simulator->drops,newdrop);
+          }
+        }
+        
+      }
+      
+      debugf("drop %u has dropped and split into %u new drops", drop->index, s);
+      simulator_droptable_deletedrop(&simulator->drops,drop);
+      
+    }
     
   } else {
-
+    
+    debugf("drop %u cannot fall but can move", drop->index);
+    
     /*
      * It is still attached to the surface but just moves
      * forward/down. Determine first how much of the water/residue is
@@ -648,13 +812,17 @@ simulator_drop_domovedrop(struct phymodel* model,
     
     /* ... */
     
+    debugf("drop %u has moved", drop->index);
+    
   }
 }
 
 void
 simulator_drop_movedrop(struct phymodel* model,
+                        struct simulatorstate* simulator,
 			struct simulatordrop* drop) {
+  debugf("trying to move drop %u", drop->index);
   if (simulator_drop_canmovedrop(model,drop)) {
-    simulator_drop_domovedrop(model,drop);
+    simulator_drop_domovedrop(model,simulator,drop);
   }
 }
